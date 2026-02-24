@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Ads</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      background-color: #F0ECE4;
+      font-family: Arial, sans-serif;
+      padding: 16px 10px;
+    }
+    h2 {
+      color: #8B0000;
+      font-size: 0.78rem;
+      text-align: center;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      margin-bottom: 16px;
+    }
+
+    /* ── AD BLOCKS ── */
+    .ad {
+      border-radius: 8px;
+      padding: 16px;
+      margin-bottom: 16px;
+      text-align: center;
+      font-size: 0.85rem;
+      line-height: 1.5;
+    }
+    .ad .ad-label {
+      font-size: 0.68rem;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      opacity: 0.7;
+      margin-bottom: 6px;
+    }
+    .ad h3 { font-size: 1rem; margin-bottom: 6px; }
+    .ad p  { margin-bottom: 10px; font-size: 0.82rem; }
+    .ad a {
+      display: inline-block;
+      padding: 7px 16px;
+      border-radius: 5px;
+      text-decoration: none;
+      font-weight: bold;
+      font-size: 0.82rem;
+      transition: opacity 0.2s, transform 0.2s;
+    }
+    .ad a:hover { opacity: 0.85; transform: scale(1.04); }
+
+    /* Ad 1 – Special Offer */
+    .ad-offer {
+      background: linear-gradient(135deg, #fff5e6, #ffe0b2);
+      border: 2px solid #E67E22;
+      color: #7D4800;
+    }
+    .ad-offer a { background: #E67E22; color: #fff; }
+
+    /* Ad 2 – Wine Night */
+    .ad-wine {
+      background: linear-gradient(135deg, #f9e8f0, #f0c8dc);
+      border: 2px solid #9B2C6E;
+      color: #6D1D4E;
+    }
+    .ad-wine a { background: #9B2C6E; color: #fff; }
+
+    /* Ad 3 – Loyalty Card */
+    .ad-loyalty {
+      background: linear-gradient(135deg, #e8f5e9, #c8e6c9);
+      border: 2px solid #2E7D32;
+      color: #1B5E20;
+    }
+    .ad-loyalty a { background: #2E7D32; color: #fff; }
+
+    /* Ad 4 – Gift Voucher */
+    .ad-gift {
+      background: linear-gradient(135deg, #e8eaf6, #c5cae9);
+      border: 2px dashed #3949AB;
+      color: #1A237E;
+    }
+    .ad-gift a { background: #3949AB; color: #fff; }
+
+    .ad .badge {
+      display: inline-block;
+      background: #8B0000;
+      color: #fff;
+      font-size: 0.7rem;
+      padding: 2px 8px;
+      border-radius: 20px;
+      margin-bottom: 8px;
+    }
+    .ad-offer .badge { background: #E67E22; }
+    .ad-wine  .badge { background: #9B2C6E; }
+  </style>
+</head>
+<body>
+
+  <h2>Specials</h2>
+
+  <!-- AD 1: Special Offer -->
+  <div class="ad ad-offer">
+    <div class="ad-label">Ad: Special Offer!</div>
+    <div class="badge">Limited Time</div>
+    <h3>🍝 Family Feast</h3>
+    <p>4-course dinner for 4 people – <strong>only R620!</strong><br>Every Friday & Saturday.</p>
+    <a href="menu-page.html" target="main">Book Now</a>
+  </div>
+
+  <!-- AD 2: Wine Night -->
+  <div class="ad ad-wine">
+    <div class="ad-label">Ad: Learn More!</div>
+    <div class="badge">Every Thursday</div>
+    <h3>🍷 Wine & Dine Night</h3>
+    <p>Enjoy a curated 3-course meal paired with premium Tuscan wines.</p>
+    <a href="iframe-page.html" target="main">Learn More</a>
+  </div>
+
+  <!-- AD 3: Loyalty -->
+  <div class="ad ad-loyalty">
+    <div class="ad-label">Ad: Join & Save!</div>
+    <h3>💳 Loyalty Card</h3>
+    <p>Earn points every visit. <strong>10 visits = 1 free meal!</strong></p>
+    <a href="main.html#contact" target="main">Sign Up Free</a>
+  </div>
+
+  <!-- AD 4: Gift Voucher -->
+  <div class="ad ad-gift">
+    <div class="ad-label">Ad: Perfect Gift!</div>
+    <h3>🎁 Gift Vouchers</h3>
+    <p>The perfect present for food lovers. From R200 upwards.</p>
+    <a href="main.html#contact" target="main">Buy a Voucher</a>
+  </div>
+
+</body>
+</html>
