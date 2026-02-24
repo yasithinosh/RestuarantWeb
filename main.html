@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Home – La Bella Cucina</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Georgia', serif;
+            background-color: #FAF7F2;
+            color: #333;
+            padding: 30px;
+            line-height: 1.7;
+        }
+
+        .hero {
+            background: linear-gradient(rgba(0, 0, 0, 0.45), rgba(0, 0, 0, 0.45)),
+                url('https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=900') center/cover no-repeat;
+            color: #fff;
+            text-align: center;
+            padding: 60px 20px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+        }
+
+        .hero h1 {
+            font-size: 2.2rem;
+            margin-bottom: 10px;
+        }
+
+        .hero p {
+            font-size: 1.1rem;
+            color: #f0e0c0;
+            margin-bottom: 20px;
+        }
+
+        .btn {
+            display: inline-block;
+            background: #8B0000;
+            color: #fff;
+            padding: 12px 28px;
+            border-radius: 6px;
+            text-decoration: none;
+            font-size: 0.95rem;
+            transition: background 0.2s, transform 0.2s;
+        }
+
+        .btn:hover {
+            background: #C0392B;
+            transform: scale(1.04);
+        }
+
+        h2 {
+            font-size: 1.5rem;
+            color: #8B0000;
+            margin-bottom: 12px;
+            border-left: 4px solid #8B0000;
+            padding-left: 10px;
+        }
+
+        p {
+            margin-bottom: 14px;
+        }
+
+        .features {
+            display: flex;
+            gap: 20px;
+            margin: 24px 0 30px;
+            flex-wrap: wrap;
+        }
+
+        .feature-card {
+            flex: 1;
+            min-width: 160px;
+            background: #fff;
+            border: 1px solid #e0d4c0;
+            border-radius: 8px;
+            padding: 20px;
+            text-align: center;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 6px 18px rgba(0, 0, 0, 0.1);
+        }
+
+        .feature-card .emoji {
+            font-size: 2rem;
+            margin-bottom: 8px;
+        }
+
+        .feature-card h3 {
+            color: #8B0000;
+            font-size: 1rem;
+            margin-bottom: 6px;
+        }
+
+        .feature-card p {
+            font-size: 0.85rem;
+            color: #666;
+            margin: 0;
+        }
+
+        .hours-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 16px 0 30px;
+            font-size: 0.9rem;
+        }
+
+        .hours-table th {
+            background: #8B0000;
+            color: #fff;
+            padding: 10px;
+            text-align: left;
+        }
+
+        .hours-table td {
+            padding: 9px 10px;
+            border-bottom: 1px solid #e8e0d0;
+        }
+
+        .hours-table tr:hover td {
+            background: #f5ede0;
+        }
+
+        #contact {
+            margin-top: 30px;
+        }
+
+        #reserve {
+            background: #fff8f0;
+            border: 1px solid #e0c8a0;
+            border-radius: 8px;
+            padding: 24px;
+            margin-top: 30px;
+        }
+
+        #reserve input,
+        #reserve select {
+            display: block;
+            width: 100%;
+            margin: 8px 0 16px;
+            padding: 9px 12px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 0.9rem;
+            transition: border-color 0.2s;
+        }
+
+        #reserve input:focus,
+        #reserve select:focus {
+            border-color: #8B0000;
+            outline: none;
+        }
+
+        #reserve label {
+            font-size: 0.88rem;
+            color: #555;
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- Hero -->
+    <div class="hero">
+        <h1>Benvenuti a La Bella Cucina</h1>
+        <p>Where every meal is a journey through Italy</p>
+        <a href="menu-page.html" target="main" class="btn">View Our Menu</a>
+    </div>
+
+    <!-- About -->
+    <h2 id="about">About Us</h2>
+    <p>Nestled in the heart of the city, <strong>La Bella Cucina</strong> has been serving authentic Italian cuisine
+        since 1998. Our chefs trained in Naples, Florence, and Rome bring the true flavours of Italy to your table —
+        from hand-rolled pasta to wood-fired pizza.</p>
+    <p>We source our ingredients from local farms and certified Italian importers, ensuring every dish is bursting with
+        freshness.</p>
+
+    <!-- Feature cards -->
+    <div class="features">
+        <div class="feature-card">
+            <div class="emoji">🍕</div>
+            <h3>Wood-Fired Pizza</h3>
+            <p>Cooked in our authentic Neapolitan oven at 485°C.</p>
+        </div>
+        <div class="feature-card">
+            <div class="emoji">🍷</div>
+            <h3>Fine Wine List</h3>
+            <p>Over 80 labels from Tuscany, Piedmont & Sicily.</p>
+        </div>
+        <div class="feature-card">
+            <div class="emoji">👨‍🍳</div>
+            <h3>Master Chefs</h3>
+            <p>Italy-trained chefs with a combined 60 years of experience.</p>
+        </div>
+        <div class="feature-card">
+            <div class="emoji">🌿</div>
+            <h3>Fresh & Local</h3>
+            <p>Seasonal ingredients delivered daily from trusted farms.</p>
+        </div>
+    </div>
+
+    <!-- Hours -->
+    <h2 id="gallery">Opening Hours</h2>
+    <table class="hours-table">
+        <tr>
+            <th>Day</th>
+            <th>Lunch</th>
+            <th>Dinner</th>
+        </tr>
+        <tr>
+            <td>Monday – Thursday</td>
+            <td>12:00 – 15:00</td>
+            <td>18:00 – 22:00</td>
+        </tr>
+        <tr>
+            <td>Friday – Saturday</td>
+            <td>12:00 – 15:30</td>
+            <td>18:00 – 23:00</td>
+        </tr>
+        <tr>
+            <td>Sunday</td>
+            <td>12:00 – 16:00</td>
+            <td>Closed</td>
+        </tr>
+    </table>
+
+    <!-- Contact -->
+    <h2 id="contact">Contact Us</h2>
+    <p>📍 24 Olive Street, Cape Town, 8001 &nbsp;|&nbsp; 📞 021 555 0198 &nbsp;|&nbsp; ✉️ hello@labellacucina.co.za</p>
+
+    <!-- Reservation form -->
+    <div id="reserve">
+        <h2 style="border:none; padding:0; margin-bottom:16px;">Make a Reservation</h2>
+        <label>Full Name</label>
+        <input type="text" placeholder="e.g. Maria Rossi">
+        <label>Date</label>
+        <input type="date">
+        <label>Time</label>
+        <select>
+            <option>12:00</option>
+            <option>13:00</option>
+            <option>14:00</option>
+            <option>18:00</option>
+            <option>19:00</option>
+            <option>20:00</option>
+            <option>21:00</option>
+        </select>
+        <label>Guests</label>
+        <select>
+            <option>1 guest</option>
+            <option>2 guests</option>
+            <option>3 guests</option>
+            <option>4 guests</option>
+            <option>5+ guests</option>
+        </select>
+        <a href="#" class="btn">Book Table</a>
+    </div>
+
+</body>
+
+</html>
