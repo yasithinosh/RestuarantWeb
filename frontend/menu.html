@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Menu – La Bella Cucina</title>
+    <meta name="description"
+        content="Explore our authentic Italian menu — starters, pasta, pizza, mains, desserts, and drinks.">
+    <link rel="stylesheet" href="css/global.css">
+    <link rel="stylesheet" href="css/navbar.css">
+    <link rel="stylesheet" href="css/menu.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+</head>
+
+<body>
+
+    <!-- ── Navbar ── -->
+    <nav class="navbar light" id="navbar">
+        <a href="index.html" class="nav-logo">
+            <div class="nav-logo-icon">🍝</div>
+            <div class="nav-logo-text">La Bella Cucina<small>Ristorante Italiano</small></div>
+        </a>
+        <div class="nav-links" id="nav-links">
+            <a href="index.html">Home</a>
+            <a href="menu.html" class="active">Menu</a>
+            <a href="order.html">Order Online</a>
+            <a href="reservations.html">Reservations</a>
+            <a href="gallery.html">Gallery</a>
+            <a href="about.html">About</a>
+            <a href="contact.html">Contact</a>
+        </div>
+        <div class="nav-actions">
+            <button class="nav-cart-btn" onclick="cart.openDrawer()">
+                <i class="fa-solid fa-cart-shopping"></i> Cart
+                <span class="cart-badge" id="cart-count"></span>
+            </button>
+            <a href="login.html" class="btn btn-outline btn-sm" id="nav-login">Login</a>
+            <button onclick="auth.logout()" class="btn btn-sm"
+                style="display:none;background:rgba(255,255,255,0.1);color:#fff;border:1px solid rgba(255,255,255,0.2)"
+                id="nav-logout">
+                <i class="fa-solid fa-right-from-bracket"></i> <span id="nav-username"></span>
+            </button>
+        </div>
+        <button class="nav-hamburger" id="hamburger" onclick="toggleMobileMenu()">
+            <span></span><span></span><span></span>
+        </button>
+    </nav>
+
+    <!-- ── Cart Drawer ── -->
+    <div class="cart-overlay" id="cart-overlay" onclick="cart.closeDrawer()"></div>
+    <div class="cart-drawer" id="cart-drawer">
+        <div class="cart-drawer-header">
+            <h3><i class="fa-solid fa-cart-shopping"></i> Your Cart</h3>
+            <button class="cart-close-btn" onclick="cart.closeDrawer()">✕</button>
+        </div>
+        <div class="cart-items" id="cart-items"></div>
+        <div class="cart-drawer-footer">
+            <div class="cart-total"><span>Total</span><span id="cart-total-amount">R 0.00</span></div>
+            <a href="checkout.html" class="btn btn-primary" style="width:100%;justify-content:center">
+                <i class="fa-solid fa-lock"></i> Checkout
+            </a>
+        </div>
+    </div>
+
+    <!-- ── Page Header ── -->
+    <div class="page-header" style="padding-top:120px">
+        <div class="container">
+            <h1>🍽️ Our Menu</h1>
+            <p>All dishes prepared fresh daily · Allergen info available on request</p>
+        </div>
+    </div>
+
+    <!-- ── Menu Content ── -->
+    <section class="section-pad" style="background:var(--clr-cream)">
+        <div class="container">
+
+            <!-- Category Tabs -->
+            <div class="menu-tabs" id="menu-tabs">
+                <button class="menu-tab active" onclick="filterMenu('all')" data-cat="all">
+                    <span>🍽️</span> All
+                </button>
+                <button class="menu-tab" onclick="filterMenu('starters')" data-cat="starters">
+                    <span>🥗</span> Starters
+                </button>
+                <button class="menu-tab" onclick="filterMenu('pasta')" data-cat="pasta">
+                    <span>🍝</span> Pasta
+                </button>
+                <button class="menu-tab" onclick="filterMenu('pizza')" data-cat="pizza">
+                    <span>🍕</span> Pizza
+                </button>
+                <button class="menu-tab" onclick="filterMenu('mains')" data-cat="mains">
+                    <span>🥩</span> Mains
+                </button>
+                <button class="menu-tab" onclick="filterMenu('desserts')" data-cat="desserts">
+                    <span>🍮</span> Desserts
+                </button>
+                <button class="menu-tab" onclick="filterMenu('drinks')" data-cat="drinks">
+                    <span>🍷</span> Drinks
+                </button>
+            </div>
+
+            <!-- Loading state -->
+            <div id="menu-loading" class="flex-center" style="padding:var(--space-2xl)">
+                <div class="spinner"></div>
+            </div>
+
+            <!-- Menu Grid -->
+            <div class="menu-grid" id="menu-grid" style="display:none"></div>
+
+        </div>
+    </section>
+
+    <!-- ── Footer ── -->
+    <footer style="background:var(--clr-dark);color:rgba(255,255,255,0.6);text-align:center;padding:var(--space-xl) 0">
+        <div class="container">
+            <p style="margin:0">📍 24 Olive Street, Cape Town &nbsp;|&nbsp; 📞 +27 21 555 0198 &nbsp;|&nbsp;
+                <a href="reservations.html" style="color:var(--clr-gold)">Reserve a Table</a>
+            </p>
+        </div>
+    </footer>
+
+    <script src="js/api.js"></script>
+    <script src="js/cart.js"></script>
+    <script src="js/auth.js"></script>
+    <script>
+        window.addEventListener('scroll', () => {
+            document.getElementById('navbar').classList.toggle('scrolled', window.scrollY > 30);
+        });
+        function toggleMobileMenu() {
+            document.getElementById('nav-links').classList.toggle('open');
+            document.getElementById('hamburger').classList.toggle('open');
+        }
+
+        // Static fallback menu data
+        const MENU_ITEMS = [
+            { _id: 's1', name: 'Bruschetta al Pomodoro', category: 'starters', price: 65, description: 'Toasted sourdough, fresh tomato, basil & garlic', emoji: '🥖' },
+            { _id: 's2', name: 'Burrata e Prosciutto', category: 'starters', price: 110, description: 'Creamy burrata with 24-month Parma ham & rocket', emoji: '🥗' },
+            { _id: 's3', name: 'Calamari Fritti', category: 'starters', price: 95, description: 'Crispy fried calamari with lemon aioli', emoji: '🦑' },
+            { _id: 'p1', name: 'Spaghetti Carbonara', category: 'pasta', price: 165, description: 'Guanciale, egg yolk, Pecorino Romano, black pepper', emoji: '🍝' },
+            { _id: 'p2', name: 'Pappardelle al Ragù', category: 'pasta', price: 175, description: 'Slow-braised beef ragù, fresh pappardelle, Parmigiano', emoji: '🍝' },
+            { _id: 'p3', name: 'Rigatoni all\'Arrabbiata', category: 'pasta', price: 140, description: 'Spicy tomato, garlic, chilli, fresh basil (V)', emoji: '🍝' },
+            { _id: 'p4', name: 'Tagliatelle ai Funghi', category: 'pasta', price: 155, description: 'Wild mushrooms, truffle oil, cream, thyme (V)', emoji: '🍝' },
+            { _id: 'z1', name: 'Margherita', category: 'pizza', price: 140, description: 'San Marzano tomato, fior di latte, fresh basil (V)', emoji: '🍕' },
+            { _id: 'z2', name: 'Diavola', category: 'pizza', price: 165, description: 'Spicy salami, chilli flakes, olives, mozzarella', emoji: '🍕' },
+            { _id: 'z3', name: 'Quattro Formaggi', category: 'pizza', price: 170, description: 'Mozzarella, gorgonzola, taleggio, Parmigiano (V)', emoji: '🍕' },
+            { _id: 'd1', name: 'Tiramisu Classico', category: 'desserts', price: 85, description: 'Espresso-soaked savoiardi, mascarpone, cocoa', emoji: '🍮' },
+            { _id: 'd2', name: 'Panna Cotta', category: 'desserts', price: 75, description: 'Vanilla bean, seasonal berry coulis', emoji: '🍨' },
+            { _id: 'd3', name: 'Gelato (3 scoops)', category: 'desserts', price: 60, description: 'Ask your waiter for today\'s flavours', emoji: '🍦' },
+            { _id: 'w1', name: 'Chianti Classico', category: 'drinks', price: 195, description: 'Tuscany, glass 200ml', emoji: '🍷' },
+            { _id: 'w2', name: 'Sparkling Water', category: 'drinks', price: 35, description: '500ml', emoji: '💧' },
+            { _id: 'w3', name: 'Espresso Doppio', category: 'drinks', price: 45, description: 'Double shot Italian espresso', emoji: '☕' },
+        ];
+
+        let allItems = [];
+        let activeCat = 'all';
+
+        function renderMenu(items) {
+            const grid = document.getElementById('menu-grid');
+            if (!items.length) {
+                grid.innerHTML = '<div class="empty-state" style="grid-column:1/-1"><i class="fa-solid fa-plate-wheat"></i><h4>No items in this category</h4></div>';
+            } else {
+                grid.innerHTML = items.map(item => `
+        <div class="menu-item-card animate-fadeInUp">
+          <div class="menu-item-img">
+            <span>${item.emoji || '🍽️'}</span>
+            ${item.image ? `<img src="${item.image}" alt="${item.name}" loading="lazy">` : ''}
+            <span class="menu-item-tag">${item.category}</span>
+          </div>
+          <div class="menu-item-body">
+            <div class="menu-item-name">${item.name}</div>
+            <div class="menu-item-desc">${item.description}</div>
+            <div class="menu-item-footer">
+              <span class="menu-item-price">${formatZAR(item.price)}</span>
+              <button class="add-to-cart-btn" id="btn-${item._id}" onclick="addItem(${JSON.stringify(item).replace(/"/g, '&quot;')}, this)">
+                <i class="fa-solid fa-plus"></i> Add
+              </button>
+            </div>
+          </div>
+        </div>`).join('');
+            }
+            document.getElementById('menu-loading').style.display = 'none';
+            grid.style.display = 'grid';
+        }
+
+        function filterMenu(cat) {
+            activeCat = cat;
+            document.querySelectorAll('.menu-tab').forEach(t => t.classList.toggle('active', t.dataset.cat === cat));
+            const filtered = cat === 'all' ? allItems : allItems.filter(i => i.category === cat);
+            renderMenu(filtered);
+        }
+
+        function addItem(item, btn) {
+            cart.add(item);
+            btn.classList.add('added');
+            btn.innerHTML = '<i class="fa-solid fa-check"></i> Added!';
+            setTimeout(() => {
+                btn.classList.remove('added');
+                btn.innerHTML = '<i class="fa-solid fa-plus"></i> Add';
+            }, 1500);
+        }
+
+        async function loadMenu() {
+            try {
+                const data = await api.getMenu();
+                // Merge emojis from static
+                allItems = data.map(item => ({
+                    ...item,
+                    emoji: MENU_ITEMS.find(m => m.name === item.name)?.emoji || '🍽️'
+                }));
+            } catch {
+                allItems = MENU_ITEMS;
+            }
+            renderMenu(allItems);
+        }
+        loadMenu();
+    </script>
+</body>
+
+</html>

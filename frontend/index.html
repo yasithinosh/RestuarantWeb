@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>La Bella Cucina – Authentic Italian Restaurant</title>
+    <meta name="description"
+        content="La Bella Cucina – Experience authentic Italian cuisine in the heart of the city. Reserve a table or order online.">
+    <link rel="stylesheet" href="css/global.css">
+    <link rel="stylesheet" href="css/navbar.css">
+    <link rel="stylesheet" href="css/home.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+</head>
+
+<body>
+
+    <!-- ── Navbar ── -->
+    <nav class="navbar" id="navbar">
+        <a href="index.html" class="nav-logo">
+            <div class="nav-logo-icon">🍝</div>
+            <div class="nav-logo-text">La Bella Cucina<small>Ristorante Italiano</small></div>
+        </a>
+        <div class="nav-links" id="nav-links">
+            <a href="index.html" class="active">Home</a>
+            <a href="menu.html">Menu</a>
+            <a href="order.html">Order Online</a>
+            <a href="reservations.html">Reservations</a>
+            <a href="gallery.html">Gallery</a>
+            <a href="about.html">About</a>
+            <a href="contact.html">Contact</a>
+        </div>
+        <div class="nav-actions">
+            <button class="nav-cart-btn" onclick="cart.openDrawer()">
+                <i class="fa-solid fa-cart-shopping"></i> Cart
+                <span class="cart-badge" id="cart-count"></span>
+            </button>
+            <a href="login.html" class="btn btn-outline btn-sm" id="nav-login">Login</a>
+            <button onclick="auth.logout()" class="btn btn-sm"
+                style="display:none;background:rgba(255,255,255,0.1);color:#fff;border:1px solid rgba(255,255,255,0.2)"
+                id="nav-logout">
+                <i class="fa-solid fa-right-from-bracket"></i> <span id="nav-username"></span>
+            </button>
+            <a href="admin/index.html" class="btn btn-gold btn-sm" style="display:none" id="nav-admin">
+                <i class="fa-solid fa-gauge"></i> Admin
+            </a>
+        </div>
+        <button class="nav-hamburger" id="hamburger" onclick="toggleMobileMenu()">
+            <span></span><span></span><span></span>
+        </button>
+    </nav>
+
+    <!-- ── Cart Drawer ── -->
+    <div class="cart-overlay" id="cart-overlay" onclick="cart.closeDrawer()"></div>
+    <div class="cart-drawer" id="cart-drawer">
+        <div class="cart-drawer-header">
+            <h3><i class="fa-solid fa-cart-shopping"></i> Your Cart</h3>
+            <button class="cart-close-btn" onclick="cart.closeDrawer()">✕</button>
+        </div>
+        <div class="cart-items" id="cart-items"></div>
+        <div class="cart-drawer-footer">
+            <div class="cart-total">
+                <span>Total</span>
+                <span id="cart-total-amount">R 0.00</span>
+            </div>
+            <a href="checkout.html" class="btn btn-primary" style="width:100%;justify-content:center">
+                <i class="fa-solid fa-lock"></i> Checkout
+            </a>
+        </div>
+    </div>
+
+    <!-- ── Hero ── -->
+    <section class="hero">
+        <div class="hero-bg"></div>
+        <div class="hero-overlay"></div>
+        <div class="container">
+            <div class="hero-content animate-fadeInUp">
+                <div class="hero-eyebrow">Since 1998 · Cape Town</div>
+                <h1>The Taste of <em>Authentic</em> Italy</h1>
+                <p>Hand-rolled pasta, wood-fired pizza, and 80+ Italian wines — every dish crafted with passion and
+                    tradition in the heart of the city.</p>
+                <div class="hero-actions">
+                    <a href="reservations.html" class="btn btn-gold btn-lg">
+                        <i class="fa-solid fa-calendar-check"></i> Reserve a Table
+                    </a>
+                    <a href="order.html" class="btn btn-ghost btn-lg">
+                        <i class="fa-solid fa-bag-shopping"></i> Order Takeaway
+                    </a>
+                </div>
+            </div>
+        </div>
+        <div class="hero-scroll">
+            <span>Scroll</span>
+            <i class="fa-solid fa-chevron-down"></i>
+        </div>
+    </section>
+
+    <!-- ── Stats ── -->
+    <div class="stats-bar">
+        <div class="container">
+            <div class="stats-grid">
+                <div class="stat-item"><span class="stat-number">26+</span>
+                    <div class="stat-label">Years of Excellence</div>
+                </div>
+                <div class="stat-item"><span class="stat-number">80+</span>
+                    <div class="stat-label">Italian Wine Labels</div>
+                </div>
+                <div class="stat-item"><span class="stat-number">12</span>
+                    <div class="stat-label">Master Chefs</div>
+                </div>
+                <div class="stat-item"><span class="stat-number">★ 4.9</span>
+                    <div class="stat-label">Average Rating</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ── Features ── -->
+    <section class="features-section section-pad">
+        <div class="container text-center">
+            <span class="section-tag">Why Choose Us</span>
+            <h2 class="section-title">The La Bella Cucina Difference</h2>
+            <div class="section-divider" style="margin:0 auto var(--space-xl)"></div>
+            <div class="features-grid">
+                <div class="feature-card animate-fadeInUp animate-delay-1">
+                    <div class="feature-icon">🍕</div>
+                    <h3>Wood-Fired Pizza</h3>
+                    <p>Cooked in our authentic Neapolitan oven at 485°C for the perfect char and chew.</p>
+                </div>
+                <div class="feature-card animate-fadeInUp animate-delay-2">
+                    <div class="feature-icon">🍷</div>
+                    <h3>Fine Wine Selection</h3>
+                    <p>Over 80 carefully curated labels from Tuscany, Piedmont, and Sicily.</p>
+                </div>
+                <div class="feature-card animate-fadeInUp animate-delay-3">
+                    <div class="feature-icon">👨‍🍳</div>
+                    <h3>Italy-Trained Chefs</h3>
+                    <p>Our chefs trained in Naples, Florence, and Rome — 60+ combined years of experience.</p>
+                </div>
+                <div class="feature-card animate-fadeInUp animate-delay-4">
+                    <div class="feature-icon">🌿</div>
+                    <h3>Farm Fresh Ingredients</h3>
+                    <p>Seasonal produce delivered daily from trusted local farms and certified Italian importers.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ── Menu Preview ── -->
+    <section class="menu-preview">
+        <div class="container text-center">
+            <span class="section-tag">Taste of Italy</span>
+            <h2 class="section-title" style="color:#fff">Featured Dishes</h2>
+            <p class="section-subtitle">Fresh daily · Allergen info available on request</p>
+            <div class="menu-preview-grid" id="featured-menu"></div>
+            <a href="menu.html" class="btn btn-gold btn-lg" style="margin-top:var(--space-xl)">
+                View Full Menu <i class="fa-solid fa-arrow-right"></i>
+            </a>
+        </div>
+    </section>
+
+    <!-- ── Reservation CTA ── -->
+    <section class="reservation-cta">
+        <div class="container">
+            <h2>Ready for a Memorable Evening?</h2>
+            <p>Book your table in under 60 seconds — for special occasions or a casual dinner.</p>
+            <div style="display:flex;gap:var(--space-md);justify-content:center;flex-wrap:wrap">
+                <a href="reservations.html" class="btn btn-gold btn-lg">
+                    <i class="fa-solid fa-utensils"></i> Book a Table
+                </a>
+                <a href="order.html" class="btn btn-ghost btn-lg">
+                    <i class="fa-solid fa-bag-shopping"></i> Order Takeaway
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- ── Hours ── -->
+    <section class="section-pad">
+        <div class="container">
+            <div class="grid-2" style="gap:var(--space-2xl);align-items:start">
+                <div>
+                    <span class="section-tag">Visit Us</span>
+                    <h2 class="section-title">Opening Hours</h2>
+                    <div class="section-divider"></div>
+                    <div class="hours-table-wrap">
+                        <table class="hours-table">
+                            <tr>
+                                <th>Day</th>
+                                <th>Lunch</th>
+                                <th>Dinner</th>
+                            </tr>
+                            <tr>
+                                <td>Monday – Thursday</td>
+                                <td>12:00 – 15:00</td>
+                                <td>18:00 – 22:00</td>
+                            </tr>
+                            <tr>
+                                <td>Friday – Saturday</td>
+                                <td>12:00 – 15:30</td>
+                                <td>18:00 – 23:00</td>
+                            </tr>
+                            <tr>
+                                <td>Sunday</td>
+                                <td>12:00 – 16:00</td>
+                                <td>Closed</td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+                <div>
+                    <span class="section-tag">Find Us</span>
+                    <h2 class="section-title">Contact & Location</h2>
+                    <div class="section-divider"></div>
+                    <div style="display:flex;flex-direction:column;gap:var(--space-md)">
+                        <div class="info-row" style="display:flex;gap:12px;align-items:start">
+                            <i class="fa-solid fa-location-dot"
+                                style="color:var(--clr-primary);width:20px;margin-top:3px"></i>
+                            <div>24 Olive Street, Cape Town, 8001</div>
+                        </div>
+                        <div class="info-row" style="display:flex;gap:12px;align-items:start">
+                            <i class="fa-solid fa-phone" style="color:var(--clr-primary);width:20px;margin-top:3px"></i>
+                            <div>+27 21 555 0198</div>
+                        </div>
+                        <div class="info-row" style="display:flex;gap:12px;align-items:start">
+                            <i class="fa-solid fa-envelope"
+                                style="color:var(--clr-primary);width:20px;margin-top:3px"></i>
+                            <div>hello@labellacucina.co.za</div>
+                        </div>
+                    </div>
+                    <a href="contact.html" class="btn btn-primary" style="margin-top:var(--space-lg)">
+                        <i class="fa-solid fa-map"></i> Get Directions
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ── Testimonials ── -->
+    <section class="testimonials section-pad">
+        <div class="container text-center">
+            <span class="section-tag">What Guests Say</span>
+            <h2 class="section-title">Stories from Our Table</h2>
+            <div class="section-divider" style="margin:0 auto var(--space-xl)"></div>
+            <div class="testimonials-grid">
+                <div class="testimonial-card">
+                    <div class="testimonial-stars">★★★★★</div>
+                    <p class="testimonial-text">The Carbonara was absolutely divine — exactly as I had it in Rome. The
+                        atmosphere is warm and the service impeccable.</p>
+                    <div class="testimonial-author">Sophie M. <small>· Cape Town</small></div>
+                </div>
+                <div class="testimonial-card">
+                    <div class="testimonial-stars">★★★★★</div>
+                    <p class="testimonial-text">Celebrated my anniversary here. The tasting menu paired with their
+                        Barolo was unforgettable. We will be back!</p>
+                    <div class="testimonial-author">James & Priya <small>· Johannesburg</small></div>
+                </div>
+                <div class="testimonial-card">
+                    <div class="testimonial-stars">★★★★★</div>
+                    <p class="testimonial-text">Best pizza in Cape Town, no contest. The wood-fired crust has that
+                        perfect char. The Diavola is a must-try!</p>
+                    <div class="testimonial-author">Ravi N. <small>· Cape Town</small></div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ── Footer ── -->
+    <footer style="background:var(--clr-dark);color:rgba(255,255,255,0.6);text-align:center;padding:var(--space-xl) 0">
+        <div class="container">
+            <div style="font-family:var(--font-serif);font-size:1.3rem;color:#fff;margin-bottom:var(--space-sm)">La
+                Bella Cucina</div>
+            <p style="margin-bottom:var(--space-md)">24 Olive Street, Cape Town · +27 21 555 0198</p>
+            <div style="display:flex;gap:var(--space-md);justify-content:center;margin-bottom:var(--space-md)">
+                <a href="menu.html" style="color:var(--clr-gold)">Menu</a>
+                <a href="reservations.html" style="color:var(--clr-gold)">Reservations</a>
+                <a href="order.html" style="color:var(--clr-gold)">Order Online</a>
+                <a href="about.html" style="color:var(--clr-gold)">About</a>
+                <a href="contact.html" style="color:var(--clr-gold)">Contact</a>
+            </div>
+            <p style="font-size:0.8rem;margin:0">&copy; 2026 La Bella Cucina. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script src="js/api.js"></script>
+    <script src="js/cart.js"></script>
+    <script src="js/auth.js"></script>
+    <script>
+        // Navbar scroll effect
+        window.addEventListener('scroll', () => {
+            document.getElementById('navbar').classList.toggle('scrolled', window.scrollY > 30);
+        });
+
+        // Mobile menu
+        function toggleMobileMenu() {
+            const links = document.getElementById('nav-links');
+            const btn = document.getElementById('hamburger');
+            links.classList.toggle('open');
+            btn.classList.toggle('open');
+        }
+
+        // Load featured menu from API (fallback to static if API unavailable)
+        const FEATURED = [
+            { _id: 'f1', name: 'Spaghetti Carbonara', price: 165, category: 'pasta', description: 'Guanciale, egg yolk, Pecorino Romano, black pepper', emoji: '🍝' },
+            { _id: 'f2', name: 'Margherita Pizza', price: 140, category: 'pizza', description: 'San Marzano tomato, fior di latte, fresh basil', emoji: '🍕' },
+            { _id: 'f3', name: 'Burrata e Prosciutto', price: 110, category: 'starters', description: 'Creamy burrata with 24-month Parma ham & rocket', emoji: '🥗' },
+            { _id: 'f4', name: 'Tiramisu Classico', price: 85, category: 'desserts', description: 'Espresso-soaked savoiardi, mascarpone, cocoa', emoji: '🍮' },
+        ];
+
+        function renderFeatured(items) {
+            document.getElementById('featured-menu').innerHTML = items.map(item => `
+      <div class="menu-preview-card" onclick="window.location='menu.html'">
+        <div class="menu-preview-img">
+          <span>${item.emoji || '🍽️'}</span>
+          ${item.image ? `<img src="${item.image}" alt="${item.name}" loading="lazy">` : ''}
+        </div>
+        <div class="menu-preview-info">
+          <div class="menu-preview-name">${item.name}</div>
+          <div class="menu-preview-price">${formatZAR(item.price)}</div>
+        </div>
+      </div>`).join('');
+        }
+
+        async function loadFeatured() {
+            try {
+                const data = await api.getMenu();
+                renderFeatured(data.slice(0, 4));
+            } catch {
+                renderFeatured(FEATURED);
+            }
+        }
+        loadFeatured();
+    </script>
+</body>
+
+</html>
