@@ -1,13 +1,12 @@
-const { Op, fn, col } = require('sequelize');
+const { Op } = require('sequelize');
 const Order = require('../models/Order');
 
-// GET /api/orders
-exports.getOrders = async (req, res) => {
+// GET /api/orders  (admin/staff)
+exports.getAll = async (req, res) => {
     try {
         const where = {};
         if (req.query.status) where.status = req.query.status;
         if (req.query.type) where.type = req.query.type;
-
         const orders = await Order.findAll({ where, order: [['createdAt', 'DESC']] });
         res.json(orders);
     } catch (err) {
@@ -15,23 +14,46 @@ exports.getOrders = async (req, res) => {
     }
 };
 
-// GET /api/orders/stats
-exports.getStats = async (req, res) => {
+// GET /api/orders/mine  (customer – by email stored in JWT)
+exports.getMine = async (req, res) => {
     try {
-        const [total, pending, paid, revenueResult] = await Promise.all([
-            Order.count(),
-            Order.count({ where: { status: 'pending' } }),
-            Order.count({ where: { paid: true } }),
-            Order.sum('total', { where: { paid: true } }),
-        ]);
-        res.json({ total, pending, paid, revenue: revenueResult || 0 });
+        // Orders store customer as JSONB; filter in JS (or use Postgres JSON operators)
+        const all = await Order.findAll({ order: [['createdAt', 'DESC']] });
+        const mine = all.filter(o => o.customer && o.customer.email === req.user.email);
+        res.json(mine);
     } catch (err) {
         res.status(500).json({ error: err.message });
     }
 };
 
-// POST /api/orders
-exports.createOrder = async (req, res) => {
+// GET /api/orders/stats
+exports.stats = async (req, res) => {
+    try {
+        const [total, pending, paid, revenue] = await Promise.all([
+            Order.count(),
+            Order.count({ where: { status: 'pending' } }),
+            Order.count({ where: { paid: true } }),
+            Order.sum('total', { where: { paid: true } }),
+        ]);
+        res.json({ total, pending, paid, revenue: revenue || 0 });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+};
+
+// GET /api/orders/:id
+exports.getOne = async (req, res) => {
+    try {
+        const order = await Order.findByPk(req.params.id);
+        if (!order) return res.status(404).json({ error: 'Order not found' });
+        res.json(order);
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+};
+
+// POST /api/orders  (public)
+exports.create = async (req, res) => {
     try {
         const order = await Order.create(req.body);
         res.status(201).json(order);
@@ -41,7 +63,7 @@ exports.createOrder = async (req, res) => {
 };
 
 // PUT /api/orders/:id
-exports.updateOrder = async (req, res) => {
+exports.update = async (req, res) => {
     try {
         const order = await Order.findByPk(req.params.id);
         if (!order) return res.status(404).json({ error: 'Order not found' });
@@ -53,7 +75,7 @@ exports.updateOrder = async (req, res) => {
 };
 
 // DELETE /api/orders/:id
-exports.deleteOrder = async (req, res) => {
+exports.remove = async (req, res) => {
     try {
         const order = await Order.findByPk(req.params.id);
         if (!order) return res.status(404).json({ error: 'Order not found' });

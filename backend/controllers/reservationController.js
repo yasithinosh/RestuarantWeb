@@ -1,8 +1,8 @@
-const { Op, fn, col, literal } = require('sequelize');
+const { Op } = require('sequelize');
 const Reservation = require('../models/Reservation');
 
-// GET /api/reservations
-exports.getReservations = async (req, res) => {
+// GET /api/reservations  (admin/staff)
+exports.getAll = async (req, res) => {
     try {
         const where = {};
         if (req.query.status) where.status = req.query.status;
@@ -23,8 +23,21 @@ exports.getReservations = async (req, res) => {
     }
 };
 
+// GET /api/reservations/mine  (customer – own reservations)
+exports.getMine = async (req, res) => {
+    try {
+        const reservations = await Reservation.findAll({
+            where: { email: req.user.email },
+            order: [['date', 'DESC']],
+        });
+        res.json(reservations);
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+};
+
 // GET /api/reservations/stats
-exports.getStats = async (req, res) => {
+exports.stats = async (req, res) => {
     try {
         const [total, pending, confirmed, cancelled] = await Promise.all([
             Reservation.count(),
@@ -38,8 +51,8 @@ exports.getStats = async (req, res) => {
     }
 };
 
-// POST /api/reservations
-exports.createReservation = async (req, res) => {
+// POST /api/reservations  (public)
+exports.create = async (req, res) => {
     try {
         const reservation = await Reservation.create(req.body);
         res.status(201).json(reservation);
@@ -49,7 +62,7 @@ exports.createReservation = async (req, res) => {
 };
 
 // PUT /api/reservations/:id
-exports.updateReservation = async (req, res) => {
+exports.update = async (req, res) => {
     try {
         const reservation = await Reservation.findByPk(req.params.id);
         if (!reservation) return res.status(404).json({ error: 'Reservation not found' });
@@ -61,7 +74,7 @@ exports.updateReservation = async (req, res) => {
 };
 
 // DELETE /api/reservations/:id
-exports.deleteReservation = async (req, res) => {
+exports.remove = async (req, res) => {
     try {
         const reservation = await Reservation.findByPk(req.params.id);
         if (!reservation) return res.status(404).json({ error: 'Reservation not found' });

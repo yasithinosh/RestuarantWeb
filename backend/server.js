@@ -12,7 +12,8 @@ require('./models/Order');
 const app = express();
 
 // ── Middleware ──────────────────────────────────────────────
-app.use(cors({ origin: process.env.CLIENT_URL || '*' }));
+// Allow all origins in development (covers file://, Live Server, any localhost port)
+app.use(cors({ origin: '*' }));
 app.use(express.json());
 
 // ── Routes ──────────────────────────────────────────────────

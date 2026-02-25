@@ -17,12 +17,12 @@ const auth = {
     logout() {
         localStorage.removeItem('lb_token');
         localStorage.removeItem('lb_user');
-        window.location.href = '/frontend/index.html';
+        window.location.href = 'index.html';
     },
 
     requireLogin() {
         if (!auth.isLoggedIn()) {
-            window.location.href = `/frontend/login.html?redirect=${encodeURIComponent(window.location.pathname)}`;
+            window.location.href = `login.html?redirect=${encodeURIComponent(window.location.pathname)}`;
             return false;
         }
         return true;
@@ -30,7 +30,7 @@ const auth = {
 
     requireAdmin() {
         if (!auth.isAdmin()) {
-            window.location.href = '/frontend/index.html';
+            window.location.href = 'index.html';
             return false;
         }
         return true;
