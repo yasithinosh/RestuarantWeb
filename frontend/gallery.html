@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gallery – La Bella Cucina</title>
+    <link rel="stylesheet" href="css/global.css">
+    <link rel="stylesheet" href="css/navbar.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <style>
+        .gallery-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: var(--space-md);
+        }
+
+        .gallery-item {
+            border-radius: var(--radius-md);
+            overflow: hidden;
+            aspect-ratio: 4/3;
+            position: relative;
+            cursor: pointer;
+        }
+
+        .gallery-item img,
+        .gallery-item .gallery-placeholder {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+
+        .gallery-placeholder {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 4rem;
+            background: var(--clr-cream-2);
+        }
+
+        .gallery-item:hover .gallery-caption {
+            opacity: 1;
+        }
+
+        .gallery-caption {
+            position: absolute;
+            inset: 0;
+            background: rgba(26, 20, 10, 0.6);
+            display: flex;
+            align-items: flex-end;
+            justify-content: flex-start;
+            padding: var(--space-md);
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .gallery-caption span {
+            color: #fff;
+            font-size: 0.95rem;
+            font-weight: 600;
+        }
+
+        .gallery-tabs {
+            display: flex;
+            gap: var(--space-sm);
+            margin-bottom: var(--space-xl);
+            flex-wrap: wrap;
+        }
+
+        .gallery-tab {
+            padding: 8px 20px;
+            border-radius: 999px;
+            border: 2px solid var(--clr-border);
+            background: #fff;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: all var(--transition);
+            font-family: var(--font-sans);
+        }
+
+        .gallery-tab.active,
+        .gallery-tab:hover {
+            background: var(--clr-primary);
+            color: #fff;
+            border-color: var(--clr-primary);
+        }
+    </style>
+</head>
+
+<body>
+    <nav class="navbar light" id="navbar">
+        <a href="index.html" class="nav-logo">
+            <div class="nav-logo-icon">🍝</div>
+            <div class="nav-logo-text">La Bella Cucina<small>Ristorante Italiano</small></div>
+        </a>
+        <div class="nav-links" id="nav-links">
+            <a href="index.html">Home</a>
+            <a href="menu.html">Menu</a>
+            <a href="order.html">Order Online</a>
+            <a href="reservations.html">Reservations</a>
+            <a href="gallery.html" class="active">Gallery</a>
+            <a href="about.html">About</a>
+            <a href="contact.html">Contact</a>
+        </div>
+        <div class="nav-actions">
+            <a href="login.html" class="btn btn-outline btn-sm" id="nav-login">Login</a>
+            <button onclick="auth.logout()" class="btn btn-sm"
+                style="display:none;background:rgba(255,255,255,0.1);color:#fff;border:1px solid rgba(255,255,255,0.2)"
+                id="nav-logout">
+                <i class="fa-solid fa-right-from-bracket"></i> <span id="nav-username"></span>
+            </button>
+        </div>
+        <button class="nav-hamburger" id="hamburger"
+            onclick="toggleMobileMenu()"><span></span><span></span><span></span></button>
+    </nav>
+
+    <div class="page-header" style="padding-top:120px">
+        <div class="container">
+            <h1>📸 Gallery</h1>
+            <p>A taste of our ambiance, dishes & moments</p>
+        </div>
+    </div>
+
+    <section class="section-pad" style="background:var(--clr-cream)">
+        <div class="container">
+            <div class="gallery-tabs">
+                <button class="gallery-tab active" onclick="filterGallery('all')">All</button>
+                <button class="gallery-tab" onclick="filterGallery('food')">🍽️ Food</button>
+                <button class="gallery-tab" onclick="filterGallery('ambiance')">🕯️ Ambiance</button>
+                <button class="gallery-tab" onclick="filterGallery('events')">🎉 Events</button>
+            </div>
+            <div class="gallery-grid" id="gallery-grid"></div>
+        </div>
+    </section>
+
+    <footer style="background:var(--clr-dark);color:rgba(255,255,255,0.6);text-align:center;padding:var(--space-xl) 0">
+        <div class="container">
+            <p style="margin:0">© 2026 La Bella Cucina · <a href="reservations.html"
+                    style="color:var(--clr-gold)">Reserve a Table</a></p>
+        </div>
+    </footer>
+
+    <script src="js/api.js"></script>
+    <script src="js/auth.js"></script>
+    <script>
+        window.addEventListener('scroll', () => document.getElementById('navbar').classList.toggle('scrolled', window.scrollY > 30));
+        function toggleMobileMenu() { document.getElementById('nav-links').classList.toggle('open'); document.getElementById('hamburger').classList.toggle('open'); }
+
+        // Gallery data using emoji placeholders (swappable with real images)
+        const GALLERY = [
+            { cat: 'food', emoji: '🍝', caption: 'Spaghetti Carbonara' },
+            { cat: 'food', emoji: '🍕', caption: 'Wood-fired Margherita' },
+            { cat: 'food', emoji: '🥗', caption: 'Burrata & Prosciutto' },
+            { cat: 'food', emoji: '🍮', caption: 'Tiramisu Classico' },
+            { cat: 'food', emoji: '🍷', caption: 'Chianti Classico' },
+            { cat: 'food', emoji: '🥖', caption: 'Bruschetta al Pomodoro' },
+            { cat: 'ambiance', emoji: '🕯️', caption: 'Candlelit Dinner' },
+            { cat: 'ambiance', emoji: '🌿', caption: 'Garden Terrace' },
+            { cat: 'ambiance', emoji: '🍾', caption: 'Private Dining Room' },
+            { cat: 'ambiance', emoji: '🎵', caption: 'Live Jazz Evenings' },
+            { cat: 'events', emoji: '🎂', caption: 'Birthday Celebrations' },
+            { cat: 'events', emoji: '💍', caption: 'Engagement Dinner' },
+            { cat: 'events', emoji: '🥂', caption: 'New Year\'s Eve Gala' },
+            { cat: 'events', emoji: '🎅', caption: 'Christmas Family Feast' },
+        ];
+
+        let activeCat = 'all';
+
+        function filterGallery(cat) {
+            activeCat = cat;
+            document.querySelectorAll('.gallery-tab').forEach(t => t.classList.toggle('active', t.textContent.trim().replace(/.*\s/, '').toLowerCase() === cat || (cat === 'all' && t.textContent.trim() === 'All')));
+            const items = cat === 'all' ? GALLERY : GALLERY.filter(g => g.cat === cat);
+            document.getElementById('gallery-grid').innerHTML = items.map(g => `
+      <div class="gallery-item animate-fadeInUp">
+        <div class="gallery-placeholder">${g.emoji}</div>
+        <div class="gallery-caption"><span>${g.caption}</span></div>
+      </div>`).join('');
+        }
+
+        filterGallery('all');
+    </script>
+</body>
+
+</html>

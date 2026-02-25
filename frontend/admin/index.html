@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard – La Bella Cucina</title>
+    <link rel="stylesheet" href="../css/global.css">
+    <link rel="stylesheet" href="../css/admin.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+</head>
+
+<body>
+    <div class="admin-layout">
+
+        <!-- ── Sidebar ── -->
+        <aside class="admin-sidebar">
+            <div class="sidebar-logo">
+                <div class="sidebar-logo-icon">🍝</div>
+                <div class="sidebar-logo-text">La Bella Cucina<small>Admin Panel</small></div>
+            </div>
+            <nav class="sidebar-nav">
+                <div class="sidebar-nav-section">Main</div>
+                <a href="index.html" class="active"><i class="fa-solid fa-gauge"></i> Dashboard</a>
+                <a href="reservations.html"><i class="fa-solid fa-calendar-check"></i> Reservations <span
+                        class="nav-badge" id="sidebar-pending-res">0</span></a>
+                <a href="menu.html"><i class="fa-solid fa-utensils"></i> Menu Management</a>
+                <a href="orders.html"><i class="fa-solid fa-receipt"></i> Orders <span class="nav-badge"
+                        id="sidebar-pending-ord">0</span></a>
+                <div class="sidebar-nav-section">Management</div>
+                <a href="staff.html"><i class="fa-solid fa-users"></i> Staff & Users</a>
+                <hr
+                    style="border:none;border-top:1px solid rgba(255,255,255,0.08);margin:var(--space-sm) var(--space-lg)">
+                <a href="../index.html"><i class="fa-solid fa-arrow-left"></i> View Website</a>
+            </nav>
+            <div class="sidebar-footer">
+                <div class="sidebar-user">
+                    <div class="sidebar-avatar" id="admin-avatar">A</div>
+                    <div>
+                        <div style="color:#fff;font-size:0.9rem" id="admin-name">Admin</div>
+                        <div style="font-size:0.75rem">Administrator</div>
+                    </div>
+                </div>
+                <a href="../login.html" onclick="auth.logout()"
+                    style="font-size:0.8rem;color:rgba(255,255,255,0.5);display:flex;align-items:center;gap:6px">
+                    <i class="fa-solid fa-right-from-bracket"></i> Sign Out
+                </a>
+            </div>
+        </aside>
+
+        <!-- ── Main ── -->
+        <main class="admin-main">
+            <div class="admin-topbar">
+                <h2 class="admin-page-title">Dashboard</h2>
+                <div class="admin-topbar-actions">
+                    <span style="font-size:0.85rem;color:var(--clr-muted)" id="live-time"></span>
+                </div>
+            </div>
+
+            <div class="admin-content">
+
+                <!-- Stats -->
+                <div class="admin-stats-grid">
+                    <div class="admin-stat-card">
+                        <div class="stat-card-header">
+                            <div>
+                                <div class="stat-card-value" id="stat-reservations">—</div>
+                                <div class="stat-card-label">Total Reservations</div>
+                            </div>
+                            <div class="stat-card-icon red"><i class="fa-solid fa-calendar-check"></i></div>
+                        </div>
+                        <div class="stat-card-change up" id="stat-pending-res">...</div>
+                    </div>
+                    <div class="admin-stat-card">
+                        <div class="stat-card-header">
+                            <div>
+                                <div class="stat-card-value" id="stat-orders">—</div>
+                                <div class="stat-card-label">Total Orders</div>
+                            </div>
+                            <div class="stat-card-icon gold"><i class="fa-solid fa-receipt"></i></div>
+                        </div>
+                        <div class="stat-card-change up" id="stat-pending-ord">...</div>
+                    </div>
+                    <div class="admin-stat-card">
+                        <div class="stat-card-header">
+                            <div>
+                                <div class="stat-card-value" id="stat-revenue">—</div>
+                                <div class="stat-card-label">Total Revenue</div>
+                            </div>
+                            <div class="stat-card-icon green"><i class="fa-solid fa-circle-dollar-to-slot"></i></div>
+                        </div>
+                        <div class="stat-card-change up">Paid orders</div>
+                    </div>
+                    <div class="admin-stat-card">
+                        <div class="stat-card-header">
+                            <div>
+                                <div class="stat-card-value" id="stat-menu">—</div>
+                                <div class="stat-card-label">Menu Items</div>
+                            </div>
+                            <div class="stat-card-icon blue"><i class="fa-solid fa-bowl-food"></i></div>
+                        </div>
+                        <div class="stat-card-change up">Available today</div>
+                    </div>
+                </div>
+
+                <!-- Quick actions -->
+                <div style="display:flex;gap:var(--space-md);margin-bottom:var(--space-xl);flex-wrap:wrap">
+                    <a href="reservations.html" class="btn btn-primary"><i class="fa-solid fa-calendar-check"></i>
+                        Manage Reservations</a>
+                    <a href="menu.html" class="btn btn-outline"><i class="fa-solid fa-plus"></i> Add Menu Item</a>
+                    <a href="orders.html" class="btn btn-outline"><i class="fa-solid fa-receipt"></i> View Orders</a>
+                </div>
+
+                <!-- Recent Reservations -->
+                <div class="admin-table-card" style="margin-bottom:var(--space-xl)">
+                    <div class="admin-table-header">
+                        <h3><i class="fa-solid fa-calendar" style="color:var(--clr-primary);margin-right:8px"></i>Recent
+                            Reservations</h3>
+                        <a href="reservations.html" class="btn btn-outline btn-sm">View All</a>
+                    </div>
+                    <div style="overflow-x:auto">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Guest</th>
+                                    <th>Date</th>
+                                    <th>Time</th>
+                                    <th>Guests</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="recent-reservations">
+                                <tr>
+                                    <td colspan="6"
+                                        style="text-align:center;padding:var(--space-xl);color:var(--clr-muted)">
+                                        <div class="spinner" style="margin:0 auto"></div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Recent Orders -->
+                <div class="admin-table-card">
+                    <div class="admin-table-header">
+                        <h3><i class="fa-solid fa-receipt" style="color:var(--clr-primary);margin-right:8px"></i>Recent
+                            Orders</h3>
+                        <a href="orders.html" class="btn btn-outline btn-sm">View All</a>
+                    </div>
+                    <div style="overflow-x:auto">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Customer</th>
+                                    <th>Items</th>
+                                    <th>Total</th>
+                                    <th>Type</th>
+                                    <th>Status</th>
+                                    <th>Paid</th>
+                                </tr>
+                            </thead>
+                            <tbody id="recent-orders">
+                                <tr>
+                                    <td colspan="6"
+                                        style="text-align:center;padding:var(--space-xl);color:var(--clr-muted)">
+                                        <div class="spinner" style="margin:0 auto"></div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+            </div>
+        </main>
+    </div>
+
+    <script src="../js/api.js"></script>
+    <script src="../js/auth.js"></script>
+    <script>
+        // Clock
+        setInterval(() => {
+            document.getElementById('live-time').textContent = new Date().toLocaleString('en-ZA', { weekday: 'short', year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+        }, 1000);
+
+        // Admin info
+        const user = auth.getUser();
+        if (user) {
+            document.getElementById('admin-name').textContent = user.name;
+            document.getElementById('admin-avatar').textContent = user.name.charAt(0).toUpperCase();
+        }
+
+        const STATUS_BADGE = {
+            pending: '<span class="badge badge-warning">Pending</span>',
+            confirmed: '<span class="badge badge-success">Confirmed</span>',
+            cancelled: '<span class="badge badge-danger">Cancelled</span>',
+            preparing: '<span class="badge badge-info">Preparing</span>',
+            ready: '<span class="badge badge-success">Ready</span>',
+            delivered: '<span class="badge badge-gold">Delivered</span>',
+        };
+
+        async function loadDashboard() {
+            try {
+                const [resStats, ordStats, menu] = await Promise.all([
+                    api.getReservationStats(),
+                    api.getOrderStats(),
+                    api.getMenuAdmin(),
+                ]);
+                document.getElementById('stat-reservations').textContent = resStats.total;
+                document.getElementById('stat-pending-res').textContent = `${resStats.pending} pending`;
+                document.getElementById('sidebar-pending-res').textContent = resStats.pending;
+                document.getElementById('stat-orders').textContent = ordStats.total;
+                document.getElementById('stat-pending-ord').textContent = `${ordStats.pending} pending`;
+                document.getElementById('sidebar-pending-ord').textContent = ordStats.pending;
+                document.getElementById('stat-revenue').textContent = formatZAR(ordStats.revenue);
+                document.getElementById('stat-menu').textContent = menu.length;
+            } catch (e) {
+                console.warn('Could not load stats (backend offline?)', e.message);
+                ['stat-reservations', 'stat-orders', 'stat-revenue', 'stat-menu'].forEach(id => document.getElementById(id).textContent = '—');
+                ['stat-pending-res', 'stat-pending-ord'].forEach(id => document.getElementById(id).textContent = 'Backend offline');
+            }
+
+            try {
+                const reservations = await api.getReservations('?limit=5');
+                document.getElementById('recent-reservations').innerHTML = reservations.slice(0, 5).map(r => `
+        <tr>
+          <td><strong>${r.name}</strong><br><small>${r.email}</small></td>
+          <td>${formatDate(r.date)}</td>
+          <td>${r.time}</td>
+          <td>${r.guests}</td>
+          <td>${STATUS_BADGE[r.status] || r.status}</td>
+          <td><div class="action-btns">
+            <button class="action-btn confirm" onclick="updateRes('${r._id}','confirmed')">✓ Confirm</button>
+            <button class="action-btn cancel"  onclick="updateRes('${r._id}','cancelled')">✗ Cancel</button>
+          </div></td>
+        </tr>`).join('') || '<tr><td colspan="6" class="text-center" style="padding:var(--space-xl);color:var(--clr-muted)">No reservations yet</td></tr>';
+            } catch { document.getElementById('recent-reservations').innerHTML = '<tr><td colspan="6" style="text-align:center;padding:16px;color:var(--clr-muted)">Backend offline</td></tr>'; }
+
+            try {
+                const orders = await api.getOrders('?limit=5');
+                document.getElementById('recent-orders').innerHTML = orders.slice(0, 5).map(o => `
+        <tr>
+          <td><strong>${o.customer.name}</strong><br><small>${o.customer.email}</small></td>
+          <td>${o.items.length} item(s)</td>
+          <td>${formatZAR(o.total)}</td>
+          <td><span class="badge badge-info">${o.type}</span></td>
+          <td>${STATUS_BADGE[o.status] || o.status}</td>
+          <td>${o.paid ? '<span class="badge badge-success">✓ Paid</span>' : '<span class="badge badge-warning">Unpaid</span>'}</td>
+        </tr>`).join('') || '<tr><td colspan="6" style="text-align:center;padding:var(--space-xl);color:var(--clr-muted)">No orders yet</td></tr>';
+            } catch { document.getElementById('recent-orders').innerHTML = '<tr><td colspan="6" style="text-align:center;padding:16px;color:var(--clr-muted)">Backend offline</td></tr>'; }
+        }
+
+        async function updateRes(id, status) {
+            try { await api.updateReservation(id, { status }); showToast(`Reservation ${status}`); loadDashboard(); }
+            catch (e) { showToast(e.message, 'error'); }
+        }
+
+        loadDashboard();
+    </script>
+</body>
+
+</html>

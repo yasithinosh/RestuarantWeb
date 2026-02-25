@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>About Us – La Bella Cucina</title>
+    <link rel="stylesheet" href="css/global.css">
+    <link rel="stylesheet" href="css/navbar.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <style>
+        .about-story {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: var(--space-2xl);
+            align-items: center;
+            margin-bottom: var(--space-2xl);
+        }
+
+        .about-image {
+            border-radius: var(--radius-lg);
+            overflow: hidden;
+            aspect-ratio: 4/3;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--clr-cream-2);
+            font-size: 8rem;
+        }
+
+        .team-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+            gap: var(--space-lg);
+            margin-top: var(--space-xl);
+        }
+
+        .team-card {
+            background: #fff;
+            border-radius: var(--radius-lg);
+            padding: var(--space-xl);
+            text-align: center;
+            border: 1px solid var(--clr-border);
+        }
+
+        .team-avatar {
+            font-size: 3rem;
+            margin-bottom: var(--space-md);
+        }
+
+        .team-name {
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+
+        .team-role {
+            color: var(--clr-primary);
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .team-bio {
+            font-size: 0.85rem;
+            color: var(--clr-muted);
+        }
+
+        .values-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+            gap: var(--space-lg);
+        }
+
+        .value-card {
+            padding: var(--space-lg);
+            background: #fff;
+            border-radius: var(--radius-lg);
+            border: 1px solid var(--clr-border);
+            text-align: center;
+        }
+
+        .value-icon {
+            font-size: 2.5rem;
+            margin-bottom: var(--space-sm);
+        }
+
+        @media (max-width:768px) {
+            .about-story {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <nav class="navbar light" id="navbar">
+        <a href="index.html" class="nav-logo">
+            <div class="nav-logo-icon">🍝</div>
+            <div class="nav-logo-text">La Bella Cucina<small>Ristorante Italiano</small></div>
+        </a>
+        <div class="nav-links" id="nav-links">
+            <a href="index.html">Home</a>
+            <a href="menu.html">Menu</a>
+            <a href="order.html">Order Online</a>
+            <a href="reservations.html">Reservations</a>
+            <a href="gallery.html">Gallery</a>
+            <a href="about.html" class="active">About</a>
+            <a href="contact.html">Contact</a>
+        </div>
+        <div class="nav-actions">
+            <a href="login.html" class="btn btn-outline btn-sm" id="nav-login">Login</a>
+            <button onclick="auth.logout()" class="btn btn-sm"
+                style="display:none;background:rgba(255,255,255,0.1);color:#fff;border:1px solid rgba(255,255,255,0.2)"
+                id="nav-logout">
+                <i class="fa-solid fa-right-from-bracket"></i> <span id="nav-username"></span>
+            </button>
+        </div>
+        <button class="nav-hamburger" id="hamburger"
+            onclick="toggleMobileMenu()"><span></span><span></span><span></span></button>
+    </nav>
+
+    <div class="page-header" style="padding-top:120px">
+        <div class="container">
+            <h1>🍷 Our Story</h1>
+            <p>Authentic Italian hospitality in the heart of Cape Town</p>
+        </div>
+    </div>
+
+    <section class="section-pad" style="background:var(--clr-cream)">
+        <div class="container">
+
+            <!-- Story -->
+            <div class="about-story">
+                <div class="about-image">🍝</div>
+                <div>
+                    <div class="section-tag">Est. 1998</div>
+                    <h2 class="section-title" style="text-align:left;padding-bottom:var(--space-md)">A Family Recipe,
+                        Passed Down</h2>
+                    <p style="color:var(--clr-muted);margin-bottom:var(--space-md)">La Bella Cucina was founded in 1998
+                        when the Rossi family emigrated from Naples with two suitcases and a box of hand-written recipes
+                        from Nonna Maria. What started as a 12-seat trattoria in De Waterkant has grown into Cape Town's
+                        most beloved Italian dining destination.</p>
+                    <p style="color:var(--clr-muted);margin-bottom:var(--space-lg)">Today, three generations of the
+                        Rossi family welcome guests with the same warmth and the same dedication to ingredients — San
+                        Marzano tomatoes flown in weekly, 00 flour milled in Napoli, and Parmigiano aged no less than 24
+                        months.</p>
+                    <a href="reservations.html" class="btn btn-primary"><i class="fa-solid fa-calendar-check"></i>
+                        Reserve a Table</a>
+                </div>
+            </div>
+
+            <!-- Values -->
+            <div class="section-title-wrap" style="text-align:center;margin-bottom:var(--space-xl)">
+                <div class="section-tag">Our Philosophy</div>
+                <h2 class="section-title">What We Stand For</h2>
+            </div>
+            <div class="values-grid" style="margin-bottom:var(--space-2xl)">
+                <div class="value-card animate-fadeInUp">
+                    <div class="value-icon">🌿</div>
+                    <h4>Fresh Ingredients</h4>
+                    <p style="font-size:0.85rem;color:var(--clr-muted)">We source locally &amp; import only where
+                        quality demands it.</p>
+                </div>
+                <div class="value-card animate-fadeInUp">
+                    <div class="value-icon">👨‍🍳</div>
+                    <h4>Handmade Pasta</h4>
+                    <p style="font-size:0.85rem;color:var(--clr-muted)">Every pasta strand is rolled by hand each
+                        morning.</p>
+                </div>
+                <div class="value-card animate-fadeInUp">
+                    <div class="value-icon">🍕</div>
+                    <h4>Wood-fired Oven</h4>
+                    <p style="font-size:0.85rem;color:var(--clr-muted)">Our 500°C beechwood oven gives authentic
+                        Neapolitan char.</p>
+                </div>
+                <div class="value-card animate-fadeInUp">
+                    <div class="value-icon">🤝</div>
+                    <h4>Family Welcome</h4>
+                    <p style="font-size:0.85rem;color:var(--clr-muted)">Every guest is treated as a cherished member of
+                        our family.</p>
+                </div>
+            </div>
+
+            <!-- Team -->
+            <div class="section-title-wrap" style="text-align:center;margin-bottom:var(--space-xl)">
+                <div class="section-tag">The Team</div>
+                <h2 class="section-title">The People Behind the Plate</h2>
+            </div>
+            <div class="team-grid">
+                <div class="team-card">
+                    <div class="team-avatar">👨‍🍳</div>
+                    <div class="team-name">Marco Rossi</div>
+                    <div class="team-role">Executive Chef & Founder</div>
+                    <div class="team-bio">Trained in Naples, Marco carries 30 years of Italian kitchen mastery.</div>
+                </div>
+                <div class="team-card">
+                    <div class="team-avatar">👩‍🍳</div>
+                    <div class="team-name">Sofia Rossi</div>
+                    <div class="team-role">Sous Chef</div>
+                    <div class="team-bio">Marco's daughter, Sofia leads our pasta station with quiet brilliance.</div>
+                </div>
+                <div class="team-card">
+                    <div class="team-avatar">🍷</div>
+                    <div class="team-name">Luca Bianchi</div>
+                    <div class="team-role">Head Sommelier</div>
+                    <div class="team-bio">Curates our 300+ label cellar with a focus on small Italian producers.</div>
+                </div>
+                <div class="team-card">
+                    <div class="team-avatar">😊</div>
+                    <div class="team-name">Aisha Nkosi</div>
+                    <div class="team-role">Front of House Manager</div>
+                    <div class="team-bio">Ensures every guest leaves happier than when they arrived.</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <footer style="background:var(--clr-dark);color:rgba(255,255,255,0.6);text-align:center;padding:var(--space-xl) 0">
+        <div class="container">
+            <p style="margin:0">© 2026 La Bella Cucina · <a href="reservations.html"
+                    style="color:var(--clr-gold)">Reserve a Table</a></p>
+        </div>
+    </footer>
+
+    <script src="js/api.js"></script>
+    <script src="js/auth.js"></script>
+    <script>
+        window.addEventListener('scroll', () => document.getElementById('navbar').classList.toggle('scrolled', window.scrollY > 30));
+        function toggleMobileMenu() { document.getElementById('nav-links').classList.toggle('open'); document.getElementById('hamburger').classList.toggle('open'); }
+    </script>
+</body>
+
+</html>

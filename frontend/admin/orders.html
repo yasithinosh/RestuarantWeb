@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Orders – Admin</title>
+    <link rel="stylesheet" href="../css/global.css">
+    <link rel="stylesheet" href="../css/admin.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+</head>
+
+<body>
+    <div class="admin-layout">
+        <aside class="admin-sidebar">
+            <div class="sidebar-logo">
+                <div class="sidebar-logo-icon">🍝</div>
+                <div class="sidebar-logo-text">La Bella Cucina<small>Admin Panel</small></div>
+            </div>
+            <nav class="sidebar-nav">
+                <div class="sidebar-nav-section">Main</div>
+                <a href="index.html"><i class="fa-solid fa-gauge"></i> Dashboard</a>
+                <a href="reservations.html"><i class="fa-solid fa-calendar-check"></i> Reservations</a>
+                <a href="menu.html"><i class="fa-solid fa-utensils"></i> Menu Management</a>
+                <a href="orders.html" class="active"><i class="fa-solid fa-receipt"></i> Orders</a>
+                <div class="sidebar-nav-section">Management</div>
+                <a href="staff.html"><i class="fa-solid fa-users"></i> Staff & Users</a>
+                <hr
+                    style="border:none;border-top:1px solid rgba(255,255,255,0.08);margin:var(--space-sm) var(--space-lg)">
+                <a href="../index.html"><i class="fa-solid fa-arrow-left"></i> View Website</a>
+            </nav>
+            <div class="sidebar-footer">
+                <a href="../login.html" onclick="auth.logout()"
+                    style="font-size:0.8rem;color:rgba(255,255,255,0.5);display:flex;align-items:center;gap:6px">
+                    <i class="fa-solid fa-right-from-bracket"></i> Sign Out
+                </a>
+            </div>
+        </aside>
+
+        <main class="admin-main">
+            <div class="admin-topbar">
+                <h2 class="admin-page-title">Orders</h2>
+                <div class="admin-topbar-actions">
+                    <span id="ord-count" style="font-size:0.85rem;color:var(--clr-muted)"></span>
+                </div>
+            </div>
+            <div class="admin-content">
+
+                <!-- Stats -->
+                <div class="admin-stats-grid" style="margin-bottom:var(--space-xl)">
+                    <div class="admin-stat-card">
+                        <div class="stat-card-header">
+                            <div>
+                                <div class="stat-card-value" id="s-total">—</div>
+                                <div class="stat-card-label">Total Orders</div>
+                            </div>
+                            <div class="stat-card-icon blue"><i class="fa-solid fa-receipt"></i></div>
+                        </div>
+                    </div>
+                    <div class="admin-stat-card">
+                        <div class="stat-card-header">
+                            <div>
+                                <div class="stat-card-value" id="s-pending">—</div>
+                                <div class="stat-card-label">Pending</div>
+                            </div>
+                            <div class="stat-card-icon gold"><i class="fa-solid fa-clock"></i></div>
+                        </div>
+                    </div>
+                    <div class="admin-stat-card">
+                        <div class="stat-card-header">
+                            <div>
+                                <div class="stat-card-value" id="s-paid">—</div>
+                                <div class="stat-card-label">Paid</div>
+                            </div>
+                            <div class="stat-card-icon green"><i class="fa-solid fa-circle-check"></i></div>
+                        </div>
+                    </div>
+                    <div class="admin-stat-card">
+                        <div class="stat-card-header">
+                            <div>
+                                <div class="stat-card-value" id="s-revenue">—</div>
+                                <div class="stat-card-label">Revenue</div>
+                            </div>
+                            <div class="stat-card-icon red"><i class="fa-solid fa-circle-dollar-to-slot"></i></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="admin-table-card">
+                    <div class="admin-table-header">
+                        <div class="admin-search">
+                            <i class="fa-solid fa-magnifying-glass"></i>
+                            <input type="text" id="search" placeholder="Search by customer…" oninput="searchOrders()">
+                        </div>
+                        <div class="admin-table-filters">
+                            <select class="filter-select" id="status-filter" onchange="loadOrders()">
+                                <option value="">All Statuses</option>
+                                <option value="pending">Pending</option>
+                                <option value="confirmed">Confirmed</option>
+                                <option value="preparing">Preparing</option>
+                                <option value="ready">Ready</option>
+                                <option value="delivered">Delivered</option>
+                                <option value="cancelled">Cancelled</option>
+                            </select>
+                            <select class="filter-select" id="type-filter" onchange="loadOrders()">
+                                <option value="">All Types</option>
+                                <option value="takeaway">Takeaway</option>
+                                <option value="delivery">Delivery</option>
+                                <option value="dine-in">Dine-in</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div style="overflow-x:auto">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Customer</th>
+                                    <th>Items</th>
+                                    <th>Total</th>
+                                    <th>Type</th>
+                                    <th>Status</th>
+                                    <th>Paid</th>
+                                    <th>Date</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="ord-tbody">
+                                <tr>
+                                    <td colspan="8" style="text-align:center;padding:var(--space-xl)">
+                                        <div class="spinner" style="margin:0 auto"></div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="../js/api.js"></script>
+    <script src="../js/auth.js"></script>
+    <script>
+        let allOrders = [];
+        const STATUS_OPTS = ['pending', 'confirmed', 'preparing', 'ready', 'delivered', 'cancelled'];
+        const SB = {
+            pending: '<span class="badge badge-warning">Pending</span>',
+            confirmed: '<span class="badge badge-info">Confirmed</span>',
+            preparing: '<span class="badge badge-info">Preparing</span>',
+            ready: '<span class="badge badge-success">Ready</span>',
+            delivered: '<span class="badge badge-gold">Delivered</span>',
+            cancelled: '<span class="badge badge-danger">Cancelled</span>',
+        };
+
+        function renderOrders(items) {
+            const tbody = document.getElementById('ord-tbody');
+            document.getElementById('ord-count').textContent = `${items.length} order(s)`;
+            if (!items.length) {
+                tbody.innerHTML = '<tr><td colspan="8"><div class="empty-state"><i class="fa-solid fa-receipt"></i><h4>No orders found</h4></div></td></tr>';
+                return;
+            }
+            tbody.innerHTML = items.map(o => `
+      <tr>
+        <td><strong>${o.customer.name}</strong><br><small>${o.customer.email}</small></td>
+        <td>${o.items.map(i => `${i.quantity}× ${i.name}`).join('<br>')}</td>
+        <td style="font-weight:700;color:var(--clr-primary)">${formatZAR(o.total)}</td>
+        <td><span class="badge badge-info">${o.type}</span></td>
+        <td>${SB[o.status] || o.status}</td>
+        <td>${o.paid ? '<span class="badge badge-success">✓ Paid</span>' : '<span class="badge badge-warning">Unpaid</span>'}</td>
+        <td>${formatDate(o.createdAt)}</td>
+        <td>
+          <select class="filter-select" style="font-size:0.78rem;padding:4px 8px" onchange="updateOrderStatus('${o._id}', this.value)">
+            ${STATUS_OPTS.map(s => `<option value="${s}" ${o.status === s ? 'selected' : ''}>${s.charAt(0).toUpperCase() + s.slice(1)}</option>`).join('')}
+          </select>
+        </td>
+      </tr>`).join('');
+        }
+
+        function searchOrders() {
+            const q = document.getElementById('search').value.toLowerCase();
+            renderOrders(allOrders.filter(o => o.customer.name.toLowerCase().includes(q) || o.customer.email.toLowerCase().includes(q)));
+        }
+
+        async function updateOrderStatus(id, status) {
+            try { await api.updateOrder(id, { status }); showToast(`Order → ${status}`); loadOrders(); }
+            catch (e) { showToast(e.message, 'error'); }
+        }
+
+        async function loadOrders() {
+            const status = document.getElementById('status-filter').value;
+            const type = document.getElementById('type-filter').value;
+            let q = [];
+            if (status) q.push(`status=${status}`);
+            if (type) q.push(`type=${type}`);
+            try {
+                allOrders = await api.getOrders(q.length ? '?' + q.join('&') : '');
+                renderOrders(allOrders);
+                const stats = await api.getOrderStats();
+                document.getElementById('s-total').textContent = stats.total;
+                document.getElementById('s-pending').textContent = stats.pending;
+                document.getElementById('s-paid').textContent = stats.paid;
+                document.getElementById('s-revenue').textContent = formatZAR(stats.revenue);
+            } catch {
+                document.getElementById('ord-tbody').innerHTML = '<tr><td colspan="8" style="text-align:center;padding:var(--space-xl);color:var(--clr-muted)">Backend offline</td></tr>';
+            }
+        }
+        loadOrders();
+    </script>
+</body>
+
+</html>

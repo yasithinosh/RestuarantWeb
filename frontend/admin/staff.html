@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Staff Management – Admin</title>
+    <link rel="stylesheet" href="../css/global.css">
+    <link rel="stylesheet" href="../css/admin.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+</head>
+
+<body>
+    <div class="admin-layout">
+        <aside class="admin-sidebar">
+            <div class="sidebar-logo">
+                <div class="sidebar-logo-icon">🍝</div>
+                <div class="sidebar-logo-text">La Bella Cucina<small>Admin Panel</small></div>
+            </div>
+            <nav class="sidebar-nav">
+                <div class="sidebar-nav-section">Main</div>
+                <a href="index.html"><i class="fa-solid fa-gauge"></i> Dashboard</a>
+                <a href="reservations.html"><i class="fa-solid fa-calendar-check"></i> Reservations</a>
+                <a href="menu.html"><i class="fa-solid fa-utensils"></i> Menu Management</a>
+                <a href="orders.html"><i class="fa-solid fa-receipt"></i> Orders</a>
+                <div class="sidebar-nav-section">Management</div>
+                <a href="staff.html" class="active"><i class="fa-solid fa-users"></i> Staff & Users</a>
+                <hr
+                    style="border:none;border-top:1px solid rgba(255,255,255,0.08);margin:var(--space-sm) var(--space-lg)">
+                <a href="../index.html"><i class="fa-solid fa-arrow-left"></i> View Website</a>
+            </nav>
+            <div class="sidebar-footer">
+                <a href="../login.html" onclick="auth.logout()"
+                    style="font-size:0.8rem;color:rgba(255,255,255,0.5);display:flex;align-items:center;gap:6px">
+                    <i class="fa-solid fa-right-from-bracket"></i> Sign Out
+                </a>
+            </div>
+        </aside>
+
+        <main class="admin-main">
+            <div class="admin-topbar">
+                <h2 class="admin-page-title">Staff & Users</h2>
+            </div>
+            <div class="admin-content">
+                <div class="admin-table-card">
+                    <div class="admin-table-header">
+                        <div class="admin-search">
+                            <i class="fa-solid fa-magnifying-glass"></i>
+                            <input type="text" id="search" placeholder="Search users…" oninput="searchUsers()">
+                        </div>
+                        <div class="admin-table-filters">
+                            <select class="filter-select" id="role-filter" onchange="filterUsers()">
+                                <option value="">All Roles</option>
+                                <option value="admin">Admin</option>
+                                <option value="staff">Staff</option>
+                                <option value="customer">Customer</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div style="overflow-x:auto">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Name</th>
+                                    <th>Email</th>
+                                    <th>Phone</th>
+                                    <th>Role</th>
+                                    <th>Active</th>
+                                    <th>Joined</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="users-tbody">
+                                <tr>
+                                    <td colspan="7" style="text-align:center;padding:var(--space-xl)">
+                                        <div class="spinner" style="margin:0 auto"></div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="../js/api.js"></script>
+    <script src="../js/auth.js"></script>
+    <script>
+        let allUsers = [];
+        const ROLE_BADGE = {
+            admin: '<span class="badge badge-danger">Admin</span>',
+            staff: '<span class="badge badge-gold">Staff</span>',
+            customer: '<span class="badge badge-info">Customer</span>',
+        };
+
+        function renderUsers(users) {
+            const tbody = document.getElementById('users-tbody');
+            if (!users.length) {
+                tbody.innerHTML = '<tr><td colspan="7"><div class="empty-state"><i class="fa-solid fa-users"></i><h4>No users found</h4></div></td></tr>';
+                return;
+            }
+            tbody.innerHTML = users.map(u => `
+      <tr>
+        <td><strong>${u.name}</strong></td>
+        <td>${u.email}</td>
+        <td>${u.phone || '—'}</td>
+        <td>
+          <select class="filter-select" style="font-size:0.78rem;padding:4px 8px" onchange="updateRole('${u._id}', this.value)">
+            <option value="customer" ${u.role === 'customer' ? 'selected' : ''}>Customer</option>
+            <option value="staff"    ${u.role === 'staff' ? 'selected' : ''}>Staff</option>
+            <option value="admin"    ${u.role === 'admin' ? 'selected' : ''}>Admin</option>
+          </select>
+        </td>
+        <td>${u.active ? '<span class="badge badge-success">Active</span>' : '<span class="badge badge-danger">Inactive</span>'}</td>
+        <td>${formatDate(u.createdAt)}</td>
+        <td><div class="action-btns">
+          <button class="action-btn ${u.active ? 'cancel' : 'confirm'}" onclick="toggleActive('${u._id}', ${!u.active})">
+            ${u.active ? '🚫 Deactivate' : '✓ Activate'}
+          </button>
+        </div></td>
+      </tr>`).join('');
+        }
+
+        function searchUsers() {
+            const q = document.getElementById('search').value.toLowerCase();
+            const role = document.getElementById('role-filter').value;
+            renderUsers(allUsers.filter(u =>
+                (!role || u.role === role) &&
+                (!q || u.name.toLowerCase().includes(q) || u.email.toLowerCase().includes(q))
+            ));
+        }
+        function filterUsers() { searchUsers(); }
+
+        async function updateRole(id, role) {
+            try { await api.updateUser(id, { role }); showToast(`Role updated to ${role}`); loadUsers(); }
+            catch (e) { showToast(e.message, 'error'); }
+        }
+
+        async function toggleActive(id, active) {
+            try { await api.updateUser(id, { active }); showToast(active ? 'User activated' : 'User deactivated'); loadUsers(); }
+            catch (e) { showToast(e.message, 'error'); }
+        }
+
+        async function loadUsers() {
+            try {
+                allUsers = await api.getUsers();
+                renderUsers(allUsers);
+            } catch {
+                document.getElementById('users-tbody').innerHTML = '<tr><td colspan="7" style="text-align:center;padding:var(--space-xl);color:var(--clr-muted)">Backend offline</td></tr>';
+            }
+        }
+        loadUsers();
+    </script>
+</body>
+
+</html>

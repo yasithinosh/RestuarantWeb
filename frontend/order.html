@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Order Online – La Bella Cucina</title>
+    <link rel="stylesheet" href="css/global.css">
+    <link rel="stylesheet" href="css/navbar.css">
+    <link rel="stylesheet" href="css/menu.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <style>
+        .order-layout {
+            display: grid;
+            grid-template-columns: 1fr 360px;
+            gap: var(--space-xl);
+            align-items: start;
+            padding-top: var(--space-xl);
+        }
+
+        .order-sidebar {
+            position: sticky;
+            top: 90px;
+        }
+
+        .order-summary-card {
+            background: #fff;
+            border: 1px solid var(--clr-border);
+            border-radius: var(--radius-lg);
+            overflow: hidden;
+        }
+
+        .order-summary-header {
+            background: var(--clr-dark);
+            color: #fff;
+            padding: var(--space-md) var(--space-lg);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-family: var(--font-serif);
+            font-size: 1.1rem;
+        }
+
+        .order-summary-items {
+            padding: var(--space-md);
+            max-height: 350px;
+            overflow-y: auto;
+        }
+
+        .order-summary-empty {
+            text-align: center;
+            padding: var(--space-xl);
+            color: var(--clr-muted);
+        }
+
+        .order-summary-footer {
+            padding: var(--space-lg);
+            border-top: 1px solid var(--clr-border);
+            background: var(--clr-cream);
+        }
+
+        .order-row {
+            display: flex;
+            gap: var(--space-md);
+            align-items: center;
+            padding: 10px 0;
+            border-bottom: 1px solid var(--clr-border);
+            font-size: 0.9rem;
+        }
+
+        .order-row:last-child {
+            border: none;
+        }
+
+        .order-row-name {
+            flex: 1;
+            font-weight: 600;
+        }
+
+        .order-row-price {
+            color: var(--clr-primary);
+            font-weight: 700;
+        }
+
+        .order-type-toggle {
+            display: flex;
+            gap: 0;
+            margin-bottom: var(--space-lg);
+            border-radius: var(--radius-sm);
+            overflow: hidden;
+            border: 2px solid var(--clr-primary);
+        }
+
+        .order-type-btn {
+            flex: 1;
+            padding: 10px;
+            border: none;
+            font-family: var(--font-sans);
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            background: #fff;
+            color: var(--clr-primary);
+            transition: all var(--transition);
+        }
+
+        .order-type-btn.active {
+            background: var(--clr-primary);
+            color: #fff;
+        }
+
+        @media (max-width: 900px) {
+            .order-layout {
+                grid-template-columns: 1fr;
+            }
+
+            .order-sidebar {
+                position: static;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <nav class="navbar light" id="navbar">
+        <a href="index.html" class="nav-logo">
+            <div class="nav-logo-icon">🍝</div>
+            <div class="nav-logo-text">La Bella Cucina<small>Ristorante Italiano</small></div>
+        </a>
+        <div class="nav-links" id="nav-links">
+            <a href="index.html">Home</a>
+            <a href="menu.html">Menu</a>
+            <a href="order.html" class="active">Order Online</a>
+            <a href="reservations.html">Reservations</a>
+            <a href="contact.html">Contact</a>
+        </div>
+        <div class="nav-actions">
+            <a href="login.html" class="btn btn-outline btn-sm" id="nav-login">Login</a>
+            <button onclick="auth.logout()" class="btn btn-sm"
+                style="display:none;background:rgba(255,255,255,0.1);color:#fff;border:1px solid rgba(255,255,255,0.2)"
+                id="nav-logout">
+                <i class="fa-solid fa-right-from-bracket"></i> <span id="nav-username"></span>
+            </button>
+        </div>
+        <button class="nav-hamburger" id="hamburger"
+            onclick="toggleMobileMenu()"><span></span><span></span><span></span></button>
+    </nav>
+
+    <div class="page-header" style="padding-top:120px">
+        <div class="container">
+            <h1>🛍️ Order Online</h1>
+            <p>Takeaway & Delivery — ready in 30–45 minutes</p>
+        </div>
+    </div>
+
+    <section class="section-pad" style="background:var(--clr-cream)">
+        <div class="container">
+            <div class="order-layout">
+
+                <!-- Menu panel -->
+                <div>
+                    <div class="menu-tabs" id="menu-tabs">
+                        <button class="menu-tab active" onclick="filterMenu('all')" data-cat="all"><span>🍽️</span>
+                            All</button>
+                        <button class="menu-tab" onclick="filterMenu('starters')" data-cat="starters"><span>🥗</span>
+                            Starters</button>
+                        <button class="menu-tab" onclick="filterMenu('pasta')" data-cat="pasta"><span>🍝</span>
+                            Pasta</button>
+                        <button class="menu-tab" onclick="filterMenu('pizza')" data-cat="pizza"><span>🍕</span>
+                            Pizza</button>
+                        <button class="menu-tab" onclick="filterMenu('mains')" data-cat="mains"><span>🥩</span>
+                            Mains</button>
+                        <button class="menu-tab" onclick="filterMenu('desserts')" data-cat="desserts"><span>🍮</span>
+                            Desserts</button>
+                        <button class="menu-tab" onclick="filterMenu('drinks')" data-cat="drinks"><span>🍷</span>
+                            Drinks</button>
+                    </div>
+                    <div id="menu-loading" class="flex-center" style="padding:var(--space-2xl)">
+                        <div class="spinner"></div>
+                    </div>
+                    <div class="menu-grid" id="menu-grid" style="display:none"></div>
+                </div>
+
+                <!-- Order sidebar -->
+                <div class="order-sidebar">
+                    <div style="margin-bottom:var(--space-md)">
+                        <div class="order-type-toggle">
+                            <button class="order-type-btn active" id="btn-takeaway" onclick="setOrderType('takeaway')">
+                                🛍️ Takeaway
+                            </button>
+                            <button class="order-type-btn" id="btn-delivery" onclick="setOrderType('delivery')">
+                                🚚 Delivery
+                            </button>
+                        </div>
+                        <div id="delivery-addr" style="display:none">
+                            <input type="text" id="delivery-address" class="form-input"
+                                placeholder="Enter delivery address">
+                        </div>
+                    </div>
+
+                    <div class="order-summary-card">
+                        <div class="order-summary-header">
+                            <i class="fa-solid fa-receipt"></i> Your Order
+                        </div>
+                        <div class="order-summary-items" id="order-items">
+                            <div class="order-summary-empty">
+                                <i class="fa-solid fa-utensils"
+                                    style="font-size:2rem;display:block;margin-bottom:8px;color:var(--clr-border)"></i>
+                                Add items from the menu
+                            </div>
+                        </div>
+                        <div class="order-summary-footer">
+                            <div class="cart-total" style="margin-bottom:var(--space-md)">
+                                <span>Subtotal</span><span id="order-subtotal">R 0.00</span>
+                            </div>
+                            <div
+                                style="display:flex;justify-content:space-between;font-size:0.85rem;color:var(--clr-muted);margin-bottom:var(--space-md)">
+                                <span>Service fee</span><span>R 25.00</span>
+                            </div>
+                            <div class="cart-total" style="font-size:1.15rem;margin-bottom:var(--space-lg)">
+                                <span>Total</span><span id="order-total" style="color:var(--clr-primary)">R 25.00</span>
+                            </div>
+
+                            <!-- Customer info -->
+                            <div class="form-group">
+                                <input type="text" id="cust-name" class="form-input" placeholder="Your name"
+                                    style="margin-bottom:8px">
+                                <input type="email" id="cust-email" class="form-input" placeholder="Your email"
+                                    style="margin-bottom:8px">
+                                <input type="tel" id="cust-phone" class="form-input" placeholder="Phone number">
+                            </div>
+
+                            <button class="btn btn-primary" style="width:100%;justify-content:center"
+                                onclick="proceedToCheckout()">
+                                <i class="fa-solid fa-lock"></i> Proceed to Payment
+                            </button>
+                            <p
+                                style="font-size:0.75rem;color:var(--clr-muted);text-align:center;margin-top:8px;margin-bottom:0">
+                                Secure payment via <strong>Stripe</strong>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <script src="js/api.js"></script>
+    <script src="js/cart.js"></script>
+    <script src="js/auth.js"></script>
+    <script>
+        const SERVICE_FEE = 25;
+        let orderType = 'takeaway';
+
+        window.addEventListener('scroll', () => document.getElementById('navbar').classList.toggle('scrolled', window.scrollY > 30));
+        function toggleMobileMenu() { document.getElementById('nav-links').classList.toggle('open'); document.getElementById('hamburger').classList.toggle('open'); }
+
+        function setOrderType(type) {
+            orderType = type;
+            document.getElementById('btn-takeaway').classList.toggle('active', type === 'takeaway');
+            document.getElementById('btn-delivery').classList.toggle('active', type === 'delivery');
+            document.getElementById('delivery-addr').style.display = type === 'delivery' ? 'block' : 'none';
+        }
+
+        const MENU_ITEMS = [
+            { _id: 's1', name: 'Bruschetta al Pomodoro', category: 'starters', price: 65, description: 'Toasted sourdough, fresh tomato, basil & garlic', emoji: '🥖' },
+            { _id: 's2', name: 'Burrata e Prosciutto', category: 'starters', price: 110, description: 'Creamy burrata, Parma ham & rocket', emoji: '🥗' },
+            { _id: 'p1', name: 'Spaghetti Carbonara', category: 'pasta', price: 165, description: 'Guanciale, egg yolk, Pecorino Romano', emoji: '🍝' },
+            { _id: 'p2', name: 'Pappardelle al Ragù', category: 'pasta', price: 175, description: 'Slow-braised beef ragù, Parmigiano', emoji: '🍝' },
+            { _id: 'z1', name: 'Margherita', category: 'pizza', price: 140, description: 'San Marzano tomato, fior di latte, basil', emoji: '🍕' },
+            { _id: 'z2', name: 'Diavola', category: 'pizza', price: 165, description: 'Spicy salami, chilli flakes, olives', emoji: '🍕' },
+            { _id: 'd1', name: 'Tiramisu Classico', category: 'desserts', price: 85, description: 'Espresso savoiardi, mascarpone, cocoa', emoji: '🍮' },
+            { _id: 'w1', name: 'Chianti Classico', category: 'drinks', price: 195, description: 'Tuscany, glass 200ml', emoji: '🍷' },
+        ];
+        let allItems = [];
+
+        function updateOrderSummary() {
+            const items = cart.get();
+            const container = document.getElementById('order-items');
+            if (!items.length) {
+                container.innerHTML = '<div class="order-summary-empty"><i class="fa-solid fa-utensils" style="font-size:2rem;display:block;margin-bottom:8px;color:var(--clr-border)"></i>Add items from the menu</div>';
+            } else {
+                container.innerHTML = items.map(i => `
+        <div class="order-row">
+          <span class="order-row-name">${i.name} <span style="color:var(--clr-muted);font-weight:400">x${i.quantity}</span></span>
+          <span class="order-row-price">${formatZAR(i.price * i.quantity)}</span>
+          <button onclick="cart.updateQty('${i._id}', ${i.quantity - 1})" style="background:none;border:none;cursor:pointer;color:var(--clr-danger)"><i class="fa-solid fa-xmark"></i></button>
+        </div>`).join('');
+            }
+            const sub = cart.total();
+            document.getElementById('order-subtotal').textContent = formatZAR(sub);
+            document.getElementById('order-total').textContent = formatZAR(sub + SERVICE_FEE);
+        }
+
+        document.addEventListener('cartUpdated', updateOrderSummary);
+
+        function renderMenu(items) {
+            const grid = document.getElementById('menu-grid');
+            grid.innerHTML = items.map(item => `
+      <div class="menu-item-card">
+        <div class="menu-item-img">
+          <span>${item.emoji || '🍽️'}</span>
+          ${item.image ? `<img src="${item.image}" alt="${item.name}" loading="lazy">` : ''}
+          <span class="menu-item-tag">${item.category}</span>
+        </div>
+        <div class="menu-item-body">
+          <div class="menu-item-name">${item.name}</div>
+          <div class="menu-item-desc">${item.description}</div>
+          <div class="menu-item-footer">
+            <span class="menu-item-price">${formatZAR(item.price)}</span>
+            <button class="add-to-cart-btn" id="btn-${item._id}" onclick="addItem(${JSON.stringify(item).replace(/"/g, '&quot;')}, this)">
+              <i class="fa-solid fa-plus"></i> Add
+            </button>
+          </div>
+        </div>
+      </div>`).join('');
+            document.getElementById('menu-loading').style.display = 'none';
+            grid.style.display = 'grid';
+            updateOrderSummary();
+        }
+
+        function addItem(item, btn) {
+            cart.add(item);
+            btn.classList.add('added');
+            btn.innerHTML = '<i class="fa-solid fa-check"></i> Added!';
+            setTimeout(() => { btn.classList.remove('added'); btn.innerHTML = '<i class="fa-solid fa-plus"></i> Add'; }, 1500);
+        }
+
+        function filterMenu(cat) {
+            document.querySelectorAll('.menu-tab').forEach(t => t.classList.toggle('active', t.dataset.cat === cat));
+            const filtered = cat === 'all' ? allItems : allItems.filter(i => i.category === cat);
+            renderMenu(filtered);
+        }
+
+        async function proceedToCheckout() {
+            const items = cart.get();
+            if (!items.length) { showToast('Add some items first', 'error'); return; }
+            const name = document.getElementById('cust-name').value.trim();
+            const email = document.getElementById('cust-email').value.trim();
+            if (!name || !email) { showToast('Please enter your name and email', 'error'); return; }
+
+            showToast('Redirecting to secure payment…');
+            try {
+                // Create order first
+                const order = await api.createOrder({
+                    customer: { name, email, phone: document.getElementById('cust-phone').value || '' },
+                    items: items.map(i => ({ menuItem: i._id, name: i.name, price: i.price, quantity: i.quantity })),
+                    total: cart.total() + SERVICE_FEE,
+                    type: orderType,
+                    address: orderType === 'delivery' ? document.getElementById('delivery-address').value : '',
+                });
+
+                // Create Stripe session
+                const { url } = await api.createCheckout({
+                    items,
+                    customer: { name, email },
+                    type: orderType,
+                    orderId: order._id,
+                    address: order.address,
+                });
+                cart.clear();
+                window.location.href = url;
+            } catch (err) {
+                showToast(err.message, 'error');
+            }
+        }
+
+        async function loadMenu() {
+            try {
+                const data = await api.getMenu();
+                allItems = data.map(item => ({ ...item, emoji: MENU_ITEMS.find(m => m.name === item.name)?.emoji || '🍽️' }));
+            } catch { allItems = MENU_ITEMS; }
+            renderMenu(allItems);
+        }
+        loadMenu();
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Menu Management – Admin</title>
+    <link rel="stylesheet" href="../css/global.css">
+    <link rel="stylesheet" href="../css/admin.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+</head>
+
+<body>
+    <div class="admin-layout">
+        <aside class="admin-sidebar">
+            <div class="sidebar-logo">
+                <div class="sidebar-logo-icon">🍝</div>
+                <div class="sidebar-logo-text">La Bella Cucina<small>Admin Panel</small></div>
+            </div>
+            <nav class="sidebar-nav">
+                <div class="sidebar-nav-section">Main</div>
+                <a href="index.html"><i class="fa-solid fa-gauge"></i> Dashboard</a>
+                <a href="reservations.html"><i class="fa-solid fa-calendar-check"></i> Reservations</a>
+                <a href="menu.html" class="active"><i class="fa-solid fa-utensils"></i> Menu Management</a>
+                <a href="orders.html"><i class="fa-solid fa-receipt"></i> Orders</a>
+                <div class="sidebar-nav-section">Management</div>
+                <a href="staff.html"><i class="fa-solid fa-users"></i> Staff & Users</a>
+                <hr
+                    style="border:none;border-top:1px solid rgba(255,255,255,0.08);margin:var(--space-sm) var(--space-lg)">
+                <a href="../index.html"><i class="fa-solid fa-arrow-left"></i> View Website</a>
+            </nav>
+            <div class="sidebar-footer">
+                <a href="../login.html" onclick="auth.logout()"
+                    style="font-size:0.8rem;color:rgba(255,255,255,0.5);display:flex;align-items:center;gap:6px">
+                    <i class="fa-solid fa-right-from-bracket"></i> Sign Out
+                </a>
+            </div>
+        </aside>
+
+        <main class="admin-main">
+            <div class="admin-topbar">
+                <h2 class="admin-page-title">Menu Management</h2>
+                <div class="admin-topbar-actions">
+                    <button class="btn btn-primary btn-sm" onclick="openAddModal()">
+                        <i class="fa-solid fa-plus"></i> Add Item
+                    </button>
+                </div>
+            </div>
+            <div class="admin-content">
+                <div class="admin-table-card">
+                    <div class="admin-table-header">
+                        <div class="admin-search">
+                            <i class="fa-solid fa-magnifying-glass"></i>
+                            <input type="text" id="search" placeholder="Search menu items…" oninput="searchItems()">
+                        </div>
+                        <div class="admin-table-filters">
+                            <select class="filter-select" id="cat-filter" onchange="filterItems()">
+                                <option value="">All Categories</option>
+                                <option value="starters">Starters</option>
+                                <option value="pasta">Pasta</option>
+                                <option value="pizza">Pizza</option>
+                                <option value="mains">Mains</option>
+                                <option value="desserts">Desserts</option>
+                                <option value="drinks">Drinks</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div style="overflow-x:auto">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Name</th>
+                                    <th>Category</th>
+                                    <th>Price</th>
+                                    <th>Available</th>
+                                    <th>Featured</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="menu-table-body">
+                                <tr>
+                                    <td colspan="6" style="text-align:center;padding:var(--space-xl)">
+                                        <div class="spinner" style="margin:0 auto"></div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Add/Edit Modal -->
+    <div class="modal-overlay" id="item-modal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3 id="modal-title">Add Menu Item</h3>
+                <button class="modal-close" onclick="closeModal()">✕</button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="edit-id">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">Item Name *</label>
+                        <input type="text" id="item-name" class="form-input" required
+                            placeholder="e.g. Spaghetti Carbonara">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Category *</label>
+                        <select id="item-category" class="form-select">
+                            <option value="starters">Starters</option>
+                            <option value="pasta">Pasta</option>
+                            <option value="pizza">Pizza</option>
+                            <option value="mains">Mains</option>
+                            <option value="desserts">Desserts</option>
+                            <option value="drinks">Drinks</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Description *</label>
+                    <textarea id="item-desc" class="form-textarea" placeholder="Describe the dish…"
+                        style="min-height:80px"></textarea>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">Price (ZAR) *</label>
+                        <input type="number" id="item-price" class="form-input" min="0" step="0.01" placeholder="0.00">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Image URL</label>
+                        <input type="url" id="item-image" class="form-input" placeholder="https://…">
+                    </div>
+                </div>
+                <div style="display:flex;gap:var(--space-xl)">
+                    <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:0.9rem">
+                        <input type="checkbox" id="item-available" checked> Available
+                    </label>
+                    <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:0.9rem">
+                        <input type="checkbox" id="item-featured"> Featured
+                    </label>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-outline" onclick="closeModal()">Cancel</button>
+                <button class="btn btn-primary" id="save-btn" onclick="saveItem()">
+                    <i class="fa-solid fa-floppy-disk"></i> Save Item
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script src="../js/api.js"></script>
+    <script src="../js/auth.js"></script>
+    <script>
+        let allItems = [];
+
+        const CAT_BADGE = {
+            starters: 'badge-info', pasta: 'badge-gold', pizza: 'badge-warning',
+            mains: 'badge-danger', desserts: 'badge-success', drinks: 'badge-info'
+        };
+
+        function renderTable(items) {
+            const tbody = document.getElementById('menu-table-body');
+            if (!items.length) {
+                tbody.innerHTML = '<tr><td colspan="6"><div class="empty-state"><i class="fa-solid fa-bowl-food"></i><h4>No items found</h4></div></td></tr>';
+                return;
+            }
+            tbody.innerHTML = items.map(item => `
+      <tr>
+        <td><strong>${item.name}</strong>${item.image ? `<br><small style="color:var(--clr-muted)">Has image</small>` : ''}</td>
+        <td><span class="badge ${CAT_BADGE[item.category] || 'badge-info'}">${item.category}</span></td>
+        <td style="font-weight:700;color:var(--clr-primary)">${formatZAR(item.price)}</td>
+        <td>${item.available ? '<span class="badge badge-success">Yes</span>' : '<span class="badge badge-danger">No</span>'}</td>
+        <td>${item.featured ? '⭐' : '—'}</td>
+        <td><div class="action-btns">
+          <button class="action-btn edit"   onclick='openEditModal(${JSON.stringify(item)})'>✏️ Edit</button>
+          <button class="action-btn delete" onclick="deleteItem('${item._id}','${item.name.replace(/'/g, '')}')">🗑 Delete</button>
+        </div></td>
+      </tr>`).join('');
+        }
+
+        function searchItems() {
+            const q = document.getElementById('search').value.toLowerCase();
+            const cat = document.getElementById('cat-filter').value;
+            renderTable(allItems.filter(i =>
+                (!cat || i.category === cat) &&
+                (!q || i.name.toLowerCase().includes(q) || i.description.toLowerCase().includes(q))
+            ));
+        }
+        function filterItems() { searchItems(); }
+
+        function openAddModal() {
+            document.getElementById('modal-title').textContent = 'Add Menu Item';
+            document.getElementById('edit-id').value = '';
+            ['item-name', 'item-desc', 'item-image'].forEach(id => document.getElementById(id).value = '');
+            document.getElementById('item-price').value = '';
+            document.getElementById('item-available').checked = true;
+            document.getElementById('item-featured').checked = false;
+            document.getElementById('item-category').value = 'pasta';
+            document.getElementById('item-modal').classList.add('open');
+        }
+
+        function openEditModal(item) {
+            document.getElementById('modal-title').textContent = 'Edit Menu Item';
+            document.getElementById('edit-id').value = item._id;
+            document.getElementById('item-name').value = item.name;
+            document.getElementById('item-desc').value = item.description;
+            document.getElementById('item-price').value = item.price;
+            document.getElementById('item-image').value = item.image || '';
+            document.getElementById('item-category').value = item.category;
+            document.getElementById('item-available').checked = item.available;
+            document.getElementById('item-featured').checked = item.featured;
+            document.getElementById('item-modal').classList.add('open');
+        }
+
+        function closeModal() { document.getElementById('item-modal').classList.remove('open'); }
+
+        async function saveItem() {
+            const id = document.getElementById('edit-id').value;
+            const body = {
+                name: document.getElementById('item-name').value,
+                description: document.getElementById('item-desc').value,
+                price: parseFloat(document.getElementById('item-price').value),
+                image: document.getElementById('item-image').value,
+                category: document.getElementById('item-category').value,
+                available: document.getElementById('item-available').checked,
+                featured: document.getElementById('item-featured').checked,
+            };
+            if (!body.name || !body.description || isNaN(body.price)) {
+                showToast('Please fill in all required fields', 'error'); return;
+            }
+            const btn = document.getElementById('save-btn');
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Saving…';
+            btn.disabled = true;
+            try {
+                if (id) await api.updateItem(id, body);
+                else await api.createItem(body);
+                showToast(id ? 'Item updated!' : 'Item added!');
+                closeModal(); loadMenu();
+            } catch (e) {
+                showToast(e.message, 'error');
+            }
+            btn.innerHTML = '<i class="fa-solid fa-floppy-disk"></i> Save Item';
+            btn.disabled = false;
+        }
+
+        async function deleteItem(id, name) {
+            if (!confirm(`Delete "${name}"?`)) return;
+            try { await api.deleteItem(id); showToast('Deleted'); loadMenu(); }
+            catch (e) { showToast(e.message, 'error'); }
+        }
+
+        async function loadMenu() {
+            try {
+                allItems = await api.getMenuAdmin();
+                renderTable(allItems);
+            } catch {
+                document.getElementById('menu-table-body').innerHTML = '<tr><td colspan="6" style="text-align:center;padding:var(--space-xl);color:var(--clr-muted)">Backend offline — connect to see live data</td></tr>';
+            }
+        }
+        loadMenu();
+    </script>
+</body>
+
+</html>
