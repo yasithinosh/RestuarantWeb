@@ -1,70 +1,65 @@
+const { Op, fn, col } = require('sequelize');
 const Order = require('../models/Order');
 
-// POST /api/orders
-exports.create = async (req, res) => {
+// GET /api/orders
+exports.getOrders = async (req, res) => {
     try {
-        const order = await Order.create({ ...req.body, userId: req.user?._id || null });
-        res.status(201).json(order);
-    } catch (err) { res.status(400).json({ error: err.message }); }
-};
+        const where = {};
+        if (req.query.status) where.status = req.query.status;
+        if (req.query.type) where.type = req.query.type;
 
-// GET /api/orders  (staff/admin)
-exports.getAll = async (req, res) => {
-    try {
-        const { status, type } = req.query;
-        const filter = {};
-        if (status) filter.status = status;
-        if (type) filter.type = type;
-        const orders = await Order.find(filter).sort({ createdAt: -1 });
+        const orders = await Order.findAll({ where, order: [['createdAt', 'DESC']] });
         res.json(orders);
-    } catch (err) { res.status(500).json({ error: err.message }); }
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
 };
 
-// GET /api/orders/mine  (authenticated user)
-exports.getMine = async (req, res) => {
+// GET /api/orders/stats
+exports.getStats = async (req, res) => {
     try {
-        const orders = await Order.find({ userId: req.user._id }).sort({ createdAt: -1 });
-        res.json(orders);
-    } catch (err) { res.status(500).json({ error: err.message }); }
-};
-
-// GET /api/orders/:id
-exports.getOne = async (req, res) => {
-    try {
-        const order = await Order.findById(req.params.id);
-        if (!order) return res.status(404).json({ error: 'Order not found' });
-        res.json(order);
-    } catch (err) { res.status(500).json({ error: err.message }); }
-};
-
-// PUT /api/orders/:id  (staff/admin)
-exports.update = async (req, res) => {
-    try {
-        const order = await Order.findByIdAndUpdate(req.params.id, req.body, { new: true });
-        if (!order) return res.status(404).json({ error: 'Order not found' });
-        res.json(order);
-    } catch (err) { res.status(400).json({ error: err.message }); }
-};
-
-// DELETE /api/orders/:id  (admin)
-exports.remove = async (req, res) => {
-    try {
-        const order = await Order.findByIdAndDelete(req.params.id);
-        if (!order) return res.status(404).json({ error: 'Order not found' });
-        res.json({ message: 'Deleted' });
-    } catch (err) { res.status(500).json({ error: err.message }); }
-};
-
-// GET /api/orders/stats  (admin)
-exports.stats = async (req, res) => {
-    try {
-        const total = await Order.countDocuments();
-        const pending = await Order.countDocuments({ status: 'pending' });
-        const paid = await Order.countDocuments({ paid: true });
-        const revenue = await Order.aggregate([
-            { $match: { paid: true } },
-            { $group: { _id: null, total: { $sum: '$total' } } }
+        const [total, pending, paid, revenueResult] = await Promise.all([
+            Order.count(),
+            Order.count({ where: { status: 'pending' } }),
+            Order.count({ where: { paid: true } }),
+            Order.sum('total', { where: { paid: true } }),
         ]);
-        res.json({ total, pending, paid, revenue: revenue[0]?.total || 0 });
-    } catch (err) { res.status(500).json({ error: err.message }); }
+        res.json({ total, pending, paid, revenue: revenueResult || 0 });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+};
+
+// POST /api/orders
+exports.createOrder = async (req, res) => {
+    try {
+        const order = await Order.create(req.body);
+        res.status(201).json(order);
+    } catch (err) {
+        res.status(400).json({ error: err.message });
+    }
+};
+
+// PUT /api/orders/:id
+exports.updateOrder = async (req, res) => {
+    try {
+        const order = await Order.findByPk(req.params.id);
+        if (!order) return res.status(404).json({ error: 'Order not found' });
+        await order.update(req.body);
+        res.json(order);
+    } catch (err) {
+        res.status(400).json({ error: err.message });
+    }
+};
+
+// DELETE /api/orders/:id
+exports.deleteOrder = async (req, res) => {
+    try {
+        const order = await Order.findByPk(req.params.id);
+        if (!order) return res.status(404).json({ error: 'Order not found' });
+        await order.destroy();
+        res.json({ message: 'Order deleted' });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
 };

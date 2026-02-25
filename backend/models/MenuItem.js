@@ -1,14 +1,49 @@
-const mongoose = require('mongoose');
+const { DataTypes } = require('sequelize');
+const sequelize = require('../db');
 
-const menuItemSchema = new mongoose.Schema({
-    name: { type: String, required: true, trim: true },
-    category: { type: String, required: true, enum: ['starters', 'pasta', 'pizza', 'mains', 'desserts', 'drinks'] },
-    price: { type: Number, required: true, min: 0 },
-    description: { type: String, required: true },
-    image: { type: String, default: '' },
-    available: { type: Boolean, default: true },
-    featured: { type: Boolean, default: false },
-    tags: [{ type: String }],
-}, { timestamps: true });
+const MenuItem = sequelize.define('MenuItem', {
+    id: {
+        type: DataTypes.UUID,
+        defaultValue: DataTypes.UUIDV4,
+        primaryKey: true,
+    },
+    name: {
+        type: DataTypes.STRING(150),
+        allowNull: false,
+    },
+    description: {
+        type: DataTypes.TEXT,
+    },
+    price: {
+        type: DataTypes.DECIMAL(10, 2),
+        allowNull: false,
+    },
+    category: {
+        type: DataTypes.ENUM('starters', 'pasta', 'pizza', 'mains', 'desserts', 'drinks'),
+        allowNull: false,
+    },
+    image: {
+        type: DataTypes.STRING,
+    },
+    emoji: {
+        type: DataTypes.STRING(10),
+        defaultValue: '🍽️',
+    },
+    isAvailable: {
+        type: DataTypes.BOOLEAN,
+        defaultValue: true,
+    },
+    isFeatured: {
+        type: DataTypes.BOOLEAN,
+        defaultValue: false,
+    },
+    tags: {
+        type: DataTypes.ARRAY(DataTypes.STRING),
+        defaultValue: [],
+    },
+}, {
+    tableName: 'menu_items',
+    timestamps: true,
+});
 
-module.exports = mongoose.model('MenuItem', menuItemSchema);
+module.exports = MenuItem;

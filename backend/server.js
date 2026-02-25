@@ -1,7 +1,13 @@
 require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
-const mongoose = require('mongoose');
+const sequelize = require('./db');
+
+// Import models so Sequelize registers them before sync
+require('./models/User');
+require('./models/MenuItem');
+require('./models/Reservation');
+require('./models/Order');
 
 const app = express();
 
@@ -28,15 +34,15 @@ app.use((err, req, res, next) => {
     res.status(500).json({ error: err.message || 'Internal Server Error' });
 });
 
-// ── Database ────────────────────────────────────────────────
-mongoose
-    .connect(process.env.MONGO_URI)
+// ── Database + Start ────────────────────────────────────────
+sequelize
+    .sync({ alter: true })   // auto-create/update tables
     .then(() => {
-        console.log('✅ MongoDB connected');
+        console.log('✅ PostgreSQL connected & tables synced');
         const PORT = process.env.PORT || 5000;
         app.listen(PORT, () => console.log(`🚀 Server running on http://localhost:${PORT}`));
     })
     .catch(err => {
-        console.error('❌ MongoDB connection error:', err.message);
+        console.error('❌ PostgreSQL connection error:', err.message);
         process.exit(1);
     });

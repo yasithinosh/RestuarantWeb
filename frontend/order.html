@@ -237,7 +237,7 @@
                             </button>
                             <p
                                 style="font-size:0.75rem;color:var(--clr-muted);text-align:center;margin-top:8px;margin-bottom:0">
-                                Secure payment via <strong>Stripe</strong>
+                                Secure payment via <strong>PayHere</strong>
                             </p>
                         </div>
                     </div>
@@ -338,29 +338,64 @@
             if (!items.length) { showToast('Add some items first', 'error'); return; }
             const name = document.getElementById('cust-name').value.trim();
             const email = document.getElementById('cust-email').value.trim();
+            const phone = document.getElementById('cust-phone').value.trim();
             if (!name || !email) { showToast('Please enter your name and email', 'error'); return; }
 
-            showToast('Redirecting to secure payment…');
+            showToast('Redirecting to PayHere…');
             try {
-                // Create order first
+                // 1. Create order in our DB
                 const order = await api.createOrder({
-                    customer: { name, email, phone: document.getElementById('cust-phone').value || '' },
-                    items: items.map(i => ({ menuItem: i._id, name: i.name, price: i.price, quantity: i.quantity })),
+                    customer: { name, email, phone },
+                    items: items.map(i => ({ id: i._id, name: i.name, price: i.price, quantity: i.quantity })),
                     total: cart.total() + SERVICE_FEE,
                     type: orderType,
-                    address: orderType === 'delivery' ? document.getElementById('delivery-address').value : '',
+                    notes: orderType === 'delivery' ? document.getElementById('delivery-address').value : '',
                 });
 
-                // Create Stripe session
-                const { url } = await api.createCheckout({
-                    items,
-                    customer: { name, email },
-                    type: orderType,
-                    orderId: order._id,
-                    address: order.address,
+                // 2. Get PayHere hash from backend
+                const phData = await apiFetch('/payment/generate-hash', {
+                    method: 'POST',
+                    body: JSON.stringify({ orderId: order.id, amount: order.total, currency: 'LKR' }),
                 });
+
                 cart.clear();
-                window.location.href = url;
+
+                // 3. Build & auto-submit PayHere form
+                const CLIENT = window.location.origin;
+                const form = document.createElement('form');
+                form.method = 'POST';
+                form.action = phData.payhereUrl;
+
+                const fields = {
+                    merchant_id: phData.merchantId,
+                    return_url: `${CLIENT}/frontend/checkout.html?success=true&order_id=${order.id}`,
+                    cancel_url: `${CLIENT}/frontend/checkout.html?cancelled=true`,
+                    notify_url: `http://localhost:5000/api/payment/notify`,
+                    order_id: order.id,
+                    items: items.map(i => i.name).join(', '),
+                    currency: phData.currency,
+                    amount: phData.amountFormatted,
+                    first_name: name.split(' ')[0],
+                    last_name: name.split(' ').slice(1).join(' ') || 'Guest',
+                    email: email,
+                    phone: phone || '0000000000',
+                    address: orderType === 'delivery' ? document.getElementById('delivery-address').value : 'N/A',
+                    city: 'Colombo',
+                    country: 'Sri Lanka',
+                    hash: phData.hash,
+                };
+
+                Object.entries(fields).forEach(([k, v]) => {
+                    const input = document.createElement('input');
+                    input.type = 'hidden';
+                    input.name = k;
+                    input.value = v;
+                    form.appendChild(input);
+                });
+
+                document.body.appendChild(form);
+                form.submit();
+
             } catch (err) {
                 showToast(err.message, 'error');
             }

@@ -1,54 +1,58 @@
+const { Op } = require('sequelize');
 const MenuItem = require('../models/MenuItem');
 
 // GET /api/menu
-exports.getAll = async (req, res) => {
+exports.getMenu = async (req, res) => {
     try {
-        const { category } = req.query;
-        const filter = category ? { category, available: true } : { available: true };
-        const items = await MenuItem.find(filter).sort({ category: 1, name: 1 });
+        const where = { isAvailable: true };
+        if (req.query.category) where.category = req.query.category;
+        const items = await MenuItem.findAll({ where, order: [['createdAt', 'ASC']] });
         res.json(items);
-    } catch (err) { res.status(500).json({ error: err.message }); }
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
 };
 
-// GET /api/menu/all  (admin – includes unavailable)
-exports.getAllAdmin = async (req, res) => {
+// GET /api/menu/all  (admin)
+exports.getAllMenu = async (req, res) => {
     try {
-        const items = await MenuItem.find().sort({ category: 1, name: 1 });
+        const items = await MenuItem.findAll({ order: [['createdAt', 'DESC']] });
         res.json(items);
-    } catch (err) { res.status(500).json({ error: err.message }); }
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
 };
 
-// GET /api/menu/:id
-exports.getOne = async (req, res) => {
-    try {
-        const item = await MenuItem.findById(req.params.id);
-        if (!item) return res.status(404).json({ error: 'Item not found' });
-        res.json(item);
-    } catch (err) { res.status(500).json({ error: err.message }); }
-};
-
-// POST /api/menu  (admin)
-exports.create = async (req, res) => {
+// POST /api/menu
+exports.createItem = async (req, res) => {
     try {
         const item = await MenuItem.create(req.body);
         res.status(201).json(item);
-    } catch (err) { res.status(400).json({ error: err.message }); }
+    } catch (err) {
+        res.status(400).json({ error: err.message });
+    }
 };
 
-// PUT /api/menu/:id  (admin)
-exports.update = async (req, res) => {
+// PUT /api/menu/:id
+exports.updateItem = async (req, res) => {
     try {
-        const item = await MenuItem.findByIdAndUpdate(req.params.id, req.body, { new: true, runValidators: true });
+        const item = await MenuItem.findByPk(req.params.id);
         if (!item) return res.status(404).json({ error: 'Item not found' });
+        await item.update(req.body);
         res.json(item);
-    } catch (err) { res.status(400).json({ error: err.message }); }
+    } catch (err) {
+        res.status(400).json({ error: err.message });
+    }
 };
 
-// DELETE /api/menu/:id  (admin)
-exports.remove = async (req, res) => {
+// DELETE /api/menu/:id
+exports.deleteItem = async (req, res) => {
     try {
-        const item = await MenuItem.findByIdAndDelete(req.params.id);
+        const item = await MenuItem.findByPk(req.params.id);
         if (!item) return res.status(404).json({ error: 'Item not found' });
-        res.json({ message: 'Deleted successfully' });
-    } catch (err) { res.status(500).json({ error: err.message }); }
+        await item.destroy();
+        res.json({ message: 'Menu item deleted' });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
 };

@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Payment Result – La Bella Cucina</title>
+    <link rel="stylesheet" href="css/global.css">
+    <link rel="stylesheet" href="css/navbar.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <style>
+        .result-page {
+            min-height: 80vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--clr-cream);
+        }
+
+        .result-card {
+            background: #fff;
+            border-radius: var(--radius-lg);
+            padding: var(--space-2xl);
+            text-align: center;
+            max-width: 500px;
+            width: 100%;
+            margin: var(--space-xl);
+            box-shadow: 0 8px 40px rgba(0, 0, 0, 0.10);
+            border: 1px solid var(--clr-border);
+        }
+
+        .result-icon {
+            font-size: 5rem;
+            margin-bottom: var(--space-lg);
+            display: block;
+        }
+
+        .result-card h1 {
+            font-family: var(--font-serif);
+            margin-bottom: var(--space-sm);
+        }
+
+        .result-card p {
+            color: var(--clr-muted);
+            margin-bottom: var(--space-lg);
+        }
+
+        .order-id-box {
+            background: var(--clr-cream);
+            border-radius: var(--radius-sm);
+            padding: var(--space-md);
+            font-family: monospace;
+            font-size: 0.85rem;
+            color: var(--clr-muted);
+            margin-bottom: var(--space-lg);
+            word-break: break-all;
+        }
+    </style>
+</head>
+
+<body>
+
+    <nav class="navbar light scrolled" id="navbar">
+        <a href="index.html" class="nav-logo">
+            <div class="nav-logo-icon">🍝</div>
+            <div class="nav-logo-text">La Bella Cucina<small>Ristorante Italiano</small></div>
+        </a>
+    </nav>
+
+    <div class="result-page">
+        <div class="result-card" id="result-card">
+
+            <!-- Content injected by JS -->
+            <div class="spinner" style="margin:0 auto"></div>
+
+        </div>
+    </div>
+
+    <script src="js/api.js"></script>
+    <script>
+        const params = new URLSearchParams(window.location.search);
+        const card = document.getElementById('result-card');
+
+        const SUCCESS_HTML = (orderId) => `
+    <span class="result-icon">✅</span>
+    <h1>Payment Successful!</h1>
+    <p>Thank you for your order. We're preparing it now and will keep you updated.</p>
+    ${orderId ? `<div class="order-id-box">Order ID: ${orderId}</div>` : ''}
+    <div style="display:flex;flex-direction:column;gap:var(--space-sm)">
+      <a href="order.html"  class="btn btn-primary" style="justify-content:center"><i class="fa-solid fa-plus"></i>   Place Another Order</a>
+      <a href="index.html"  class="btn btn-outline" style="justify-content:center"><i class="fa-solid fa-house"></i>  Back to Home</a>
+    </div>`;
+
+        const CANCELLED_HTML = `
+    <span class="result-icon">❌</span>
+    <h1>Payment Cancelled</h1>
+    <p>No worries — your order was not placed. You can try again anytime.</p>
+    <div style="display:flex;flex-direction:column;gap:var(--space-sm)">
+      <a href="order.html"  class="btn btn-primary" style="justify-content:center"><i class="fa-solid fa-rotate-left"></i> Try Again</a>
+      <a href="index.html"  class="btn btn-outline" style="justify-content:center"><i class="fa-solid fa-house"></i>        Back to Home</a>
+    </div>`;
+
+        // PayHere returns ?success=true&order_id=...  OR  ?cancelled=true
+        if (params.get('success') === 'true') {
+            card.innerHTML = SUCCESS_HTML(params.get('order_id'));
+        } else if (params.get('cancelled') === 'true') {
+            card.innerHTML = CANCELLED_HTML;
+        } else {
+            // Fallback – generic landing
+            card.innerHTML = SUCCESS_HTML(null);
+        }
+    </script>
+</body>
+
+</html>

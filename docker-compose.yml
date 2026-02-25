@@ -1,31 +1,30 @@
 version: '3.8'
 
 services:
-  mongo:
-    image: mongo:7
-    container_name: labella_mongo
+  postgres:
+    image: postgres:16-alpine
+    container_name: labella_postgres
     restart: unless-stopped
+    environment:
+      POSTGRES_DB: labellacucina
+      POSTGRES_USER: labella
+      POSTGRES_PASSWORD: labella_secret
     ports:
-      - "27017:27017"
+      - "5432:5432"
     volumes:
-      - mongo_data:/data/db
-    environment:
-      MONGO_INITDB_DATABASE: labella
+      - postgres_data:/var/lib/postgresql/data
 
-  mongo-express:
-    image: mongo-express:latest
-    container_name: labella_mongo_ui
+  pgadmin:
+    image: dpage/pgadmin4
+    container_name: labella_pgadmin
     restart: unless-stopped
-    ports:
-      - "8081:8081"
     environment:
-      ME_CONFIG_MONGODB_SERVER: mongo
-      ME_CONFIG_MONGODB_PORT: 27017
-      ME_CONFIG_BASICAUTH_USERNAME: admin
-      ME_CONFIG_BASICAUTH_PASSWORD: admin123
+      PGADMIN_DEFAULT_EMAIL: admin@labellacucina.co.za
+      PGADMIN_DEFAULT_PASSWORD: admin123
+    ports:
+      - "5050:80"
     depends_on:
-      - mongo
+      - postgres
 
 volumes:
-  mongo_data:
-    driver: local
+  postgres_data:
