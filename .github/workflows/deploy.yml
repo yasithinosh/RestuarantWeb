@@ -1,0 +1,42 @@
+name: Deploy to AWS EC2
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  deploy:
+    name: Deploy to labella.inovoid.me
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Deploy via SSH
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USER }}
+          key: ${{ secrets.EC2_SSH_KEY }}
+          script: |
+            cd /opt/labella
+            echo "--- Pulling latest code ---"
+            git pull origin main
+
+            echo "--- Rebuilding containers ---"
+            docker compose -f docker-compose.prod.yml up --build -d
+
+            echo "--- Removing unused images ---"
+            docker image prune -f
+
+      - name: Health check
+        run: |
+          echo "Waiting 20s for services to start..."
+          sleep 20
+          STATUS=$(curl -s -o /dev/null -w "%{http_code}" https://labella.inovoid.me/api/health)
+          if [ "$STATUS" != "200" ]; then
+            echo "Health check FAILED — HTTP $STATUS"
+            exit 1
+          fi
+          echo "Health check PASSED — site is live"
