@@ -61,7 +61,7 @@
         <div class="cart-drawer-footer">
             <div class="cart-total">
                 <span>Total</span>
-                <span id="cart-total-amount">R 0.00</span>
+                <span id="cart-total-amount">Rs. 0.00</span>
             </div>
             <a href="checkout.html" class="btn btn-primary" style="width:100%;justify-content:center">
                 <i class="fa-solid fa-lock"></i> Checkout
@@ -309,17 +309,24 @@
         ];
 
         function renderFeatured(items) {
-            document.getElementById('featured-menu').innerHTML = items.map(item => `
+            document.getElementById('featured-menu').innerHTML = items.map(item => {
+                const imgSrc = item.image
+                    ? (item.image.startsWith('/uploads/')
+                        ? API_BASE.replace('/api', '') + item.image
+                        : item.image)
+                    : null;
+                return `
       <div class="menu-preview-card" onclick="window.location='menu.html'">
         <div class="menu-preview-img">
-          <span>${item.emoji || '🍽️'}</span>
-          ${item.image ? `<img src="${item.image}" alt="${item.name}" loading="lazy">` : ''}
+          <span style="${imgSrc ? 'display:none' : ''}">${item.emoji || '🍽️'}</span>
+          ${imgSrc ? `<img src="${imgSrc}" alt="${item.name}" loading="lazy">` : ''}
         </div>
         <div class="menu-preview-info">
           <div class="menu-preview-name">${item.name}</div>
           <div class="menu-preview-price">${formatZAR(item.price)}</div>
         </div>
-      </div>`).join('');
+      </div>`;
+            }).join('');
         }
 
         async function loadFeatured() {

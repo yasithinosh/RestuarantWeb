@@ -67,7 +67,6 @@ services:
       PAYHERE_SECRET: MjQ0MDMwMjI4MTE3MTU5OTIzMTE2NzU5MDE2ODIwOTMwOTc0NjY=
       PAYHERE_SANDBOX: true
 
-
       # CORS — frontend is served by nginx on port 80
       CLIENT_URL: http://localhost
 
@@ -79,6 +78,7 @@ services:
     volumes:
       - ./backend:/app
       - /app/node_modules # keep container's node_modules
+      - uploads_data:/app/uploads # persist uploaded images
 
   # ── 4. nginx Frontend ─────────────────────────────────────
   frontend:
@@ -95,3 +95,4 @@ services:
 # ── Volumes ────────────────────────────────────────────────
 volumes:
   postgres_data:
+  uploads_data:

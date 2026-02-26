@@ -75,5 +75,5 @@ function formatDate(iso) {
 
 // Currency formatter
 function formatZAR(amount) {
-    return `R ${Number(amount).toFixed(2)}`;
+    return `Rs. ${Number(amount).toFixed(2)}`;
 }

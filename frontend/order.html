@@ -212,14 +212,15 @@
                         </div>
                         <div class="order-summary-footer">
                             <div class="cart-total" style="margin-bottom:var(--space-md)">
-                                <span>Subtotal</span><span id="order-subtotal">R 0.00</span>
+                                <span>Subtotal</span><span id="order-subtotal">Rs. 0.00</span>
                             </div>
                             <div
                                 style="display:flex;justify-content:space-between;font-size:0.85rem;color:var(--clr-muted);margin-bottom:var(--space-md)">
-                                <span>Service fee</span><span>R 25.00</span>
+                                <span>Service fee</span><span>Rs. 25.00</span>
                             </div>
                             <div class="cart-total" style="font-size:1.15rem;margin-bottom:var(--space-lg)">
-                                <span>Total</span><span id="order-total" style="color:var(--clr-primary)">R 25.00</span>
+                                <span>Total</span><span id="order-total" style="color:var(--clr-primary)">Rs.
+                                    25.00</span>
                             </div>
 
                             <!-- Customer info -->
@@ -297,11 +298,17 @@
 
         function renderMenu(items) {
             const grid = document.getElementById('menu-grid');
-            grid.innerHTML = items.map(item => `
+            grid.innerHTML = items.map(item => {
+                const imgSrc = item.image
+                    ? (item.image.startsWith('/uploads/')
+                        ? API_BASE.replace('/api', '') + item.image
+                        : item.image)
+                    : null;
+                return `
       <div class="menu-item-card">
         <div class="menu-item-img">
-          <span>${item.emoji || '🍽️'}</span>
-          ${item.image ? `<img src="${item.image}" alt="${item.name}" loading="lazy">` : ''}
+          <span style="${imgSrc ? 'display:none' : ''}">${item.emoji || '\uD83C\uDF7D\uFE0F'}</span>
+          ${imgSrc ? `<img src="${imgSrc}" alt="${item.name}" loading="lazy">` : ''}
           <span class="menu-item-tag">${item.category}</span>
         </div>
         <div class="menu-item-body">
@@ -314,7 +321,8 @@
             </button>
           </div>
         </div>
-      </div>`).join('');
+      </div>`;
+            }).join('');
             document.getElementById('menu-loading').style.display = 'none';
             grid.style.display = 'grid';
             updateOrderSummary();
@@ -352,16 +360,20 @@
                     notes: orderType === 'delivery' ? document.getElementById('delivery-address').value : '',
                 });
 
-                // 2. Get PayHere hash from backend
+                // 2. Get PayHere hash from backend (using ZAR currency)
                 const phData = await apiFetch('/payment/generate-hash', {
                     method: 'POST',
-                    body: JSON.stringify({ orderId: order.id, amount: order.total, currency: 'LKR' }),
+                    body: JSON.stringify({ orderId: order.id, amount: order.total, currency: 'USD' }),
                 });
 
                 cart.clear();
 
                 // 3. Build & auto-submit PayHere form
+                // Use the API base URL origin for the notify_url so PayHere can reach it
+                // (localhost cannot be reached by PayHere servers; use ngrok/public URL in production)
+                const API_BASE = (window.API_BASE || 'http://localhost:5000').replace('/api', '');
                 const CLIENT = window.location.origin;
+
                 const form = document.createElement('form');
                 form.method = 'POST';
                 form.action = phData.payhereUrl;
@@ -369,8 +381,8 @@
                 const fields = {
                     merchant_id: phData.merchantId,
                     return_url: `${CLIENT}/frontend/checkout.html?success=true&order_id=${order.id}`,
-                    cancel_url: `${CLIENT}/frontend/checkout.html?cancelled=true`,
-                    notify_url: `http://localhost:5000/api/payment/notify`,
+                    cancel_url: `${CLIENT}/frontend/checkout.html?cancelled=true&order_id=${order.id}`,
+                    notify_url: `${API_BASE}/api/payment/notify`,
                     order_id: order.id,
                     items: items.map(i => i.name).join(', '),
                     currency: phData.currency,

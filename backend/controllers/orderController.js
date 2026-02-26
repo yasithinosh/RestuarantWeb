@@ -85,3 +85,32 @@ exports.remove = async (req, res) => {
         res.status(500).json({ error: err.message });
     }
 };
+
+/**
+ * POST /api/orders/:id/confirm-payment  (PUBLIC – no auth)
+ * Called by the frontend after PayHere redirects back to return_url.
+ * Marks the order as paid and confirmed.
+ * NOTE: In production, payment confirmation should rely on the server-to-server
+ *       webhook (/api/payment/notify). This endpoint is the fallback for
+ *       local/dev where localhost is unreachable by PayHere's servers.
+ */
+exports.confirmPayment = async (req, res) => {
+    try {
+        const order = await Order.findByPk(req.params.id);
+        if (!order) return res.status(404).json({ error: 'Order not found' });
+
+        // Only update if not already paid (idempotent)
+        if (!order.paid) {
+            await order.update({
+                paid: true,
+                status: 'confirmed',
+                paymentId: req.body.paymentId || req.params.id,
+            });
+            console.log(`✅ Payment confirmed (client-side) for order ${req.params.id}`);
+        }
+
+        res.json({ success: true, order });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+};

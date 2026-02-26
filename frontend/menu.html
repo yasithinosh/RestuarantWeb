@@ -56,7 +56,7 @@
         </div>
         <div class="cart-items" id="cart-items"></div>
         <div class="cart-drawer-footer">
-            <div class="cart-total"><span>Total</span><span id="cart-total-amount">R 0.00</span></div>
+            <div class="cart-total"><span>Total</span><span id="cart-total-amount">Rs. 0.00</span></div>
             <a href="checkout.html" class="btn btn-primary" style="width:100%;justify-content:center">
                 <i class="fa-solid fa-lock"></i> Checkout
             </a>
@@ -160,11 +160,18 @@
             if (!items.length) {
                 grid.innerHTML = '<div class="empty-state" style="grid-column:1/-1"><i class="fa-solid fa-plate-wheat"></i><h4>No items in this category</h4></div>';
             } else {
-                grid.innerHTML = items.map(item => `
+                grid.innerHTML = items.map(item => {
+                    // Build full image URL: /uploads/... needs backend origin prefix
+                    const imgSrc = item.image
+                        ? (item.image.startsWith('/uploads/')
+                            ? API_BASE.replace('/api', '') + item.image
+                            : item.image)
+                        : null;
+                    return `
         <div class="menu-item-card animate-fadeInUp">
           <div class="menu-item-img">
-            <span>${item.emoji || '🍽️'}</span>
-            ${item.image ? `<img src="${item.image}" alt="${item.name}" loading="lazy">` : ''}
+            <span style="${imgSrc ? 'display:none' : ''}">${item.emoji || '\uD83C\uDF7D\uFE0F'}</span>
+            ${imgSrc ? `<img src="${imgSrc}" alt="${item.name}" loading="lazy">` : ''}
             <span class="menu-item-tag">${item.category}</span>
           </div>
           <div class="menu-item-body">
@@ -177,7 +184,8 @@
               </button>
             </div>
           </div>
-        </div>`).join('');
+        </div>`;
+                }).join('');
             }
             document.getElementById('menu-loading').style.display = 'none';
             grid.style.display = 'grid';

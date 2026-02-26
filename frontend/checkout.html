@@ -80,35 +80,62 @@
     <script>
         const params = new URLSearchParams(window.location.search);
         const card = document.getElementById('result-card');
+        const orderId = params.get('order_id');
 
-        const SUCCESS_HTML = (orderId) => `
+        const SUCCESS_HTML = (oid) => `
     <span class="result-icon">✅</span>
     <h1>Payment Successful!</h1>
     <p>Thank you for your order. We're preparing it now and will keep you updated.</p>
-    ${orderId ? `<div class="order-id-box">Order ID: ${orderId}</div>` : ''}
+    ${oid ? `<div class="order-id-box">Order ID: ${oid}</div>` : ''}
     <div style="display:flex;flex-direction:column;gap:var(--space-sm)">
-      <a href="order.html"  class="btn btn-primary" style="justify-content:center"><i class="fa-solid fa-plus"></i>   Place Another Order</a>
-      <a href="index.html"  class="btn btn-outline" style="justify-content:center"><i class="fa-solid fa-house"></i>  Back to Home</a>
+      <a href="order.html"  class="btn btn-primary" style="justify-content:center"><i class="fa-solid fa-plus"></i> Place Another Order</a>
+      <a href="index.html"  class="btn btn-outline" style="justify-content:center"><i class="fa-solid fa-house"></i> Back to Home</a>
     </div>`;
+
+        const FAILED_HTML = (oid, msg) => `
+    <span class="result-icon">⚠️</span>
+    <h1>Payment Received</h1>
+    <p>Your payment was processed but we could not auto-confirm the order. Please contact us with your Order ID.</p>
+    ${oid ? `<div class="order-id-box">Order ID: ${oid}</div>` : ''}
+    <p style="font-size:0.8rem;color:var(--clr-muted)">${msg || ''}</p>
+    <a href="index.html" class="btn btn-outline" style="justify-content:center"><i class="fa-solid fa-house"></i> Back to Home</a>`;
 
         const CANCELLED_HTML = `
     <span class="result-icon">❌</span>
     <h1>Payment Cancelled</h1>
     <p>No worries — your order was not placed. You can try again anytime.</p>
     <div style="display:flex;flex-direction:column;gap:var(--space-sm)">
-      <a href="order.html"  class="btn btn-primary" style="justify-content:center"><i class="fa-solid fa-rotate-left"></i> Try Again</a>
-      <a href="index.html"  class="btn btn-outline" style="justify-content:center"><i class="fa-solid fa-house"></i>        Back to Home</a>
+      <a href="order.html" class="btn btn-primary" style="justify-content:center"><i class="fa-solid fa-rotate-left"></i> Try Again</a>
+      <a href="index.html" class="btn btn-outline" style="justify-content:center"><i class="fa-solid fa-house"></i> Back to Home</a>
     </div>`;
 
-        // PayHere returns ?success=true&order_id=...  OR  ?cancelled=true
-        if (params.get('success') === 'true') {
-            card.innerHTML = SUCCESS_HTML(params.get('order_id'));
-        } else if (params.get('cancelled') === 'true') {
-            card.innerHTML = CANCELLED_HTML;
-        } else {
-            // Fallback – generic landing
-            card.innerHTML = SUCCESS_HTML(null);
+        async function confirmAndShow() {
+            if (params.get('success') === 'true' && orderId) {
+                // Show loading spinner while we confirm with the backend
+                card.innerHTML = '<div class="spinner" style="margin:0 auto"></div><p style="text-align:center;margin-top:16px;color:var(--clr-muted)">Confirming your payment…</p>';
+
+                try {
+                    // Call our backend to mark the order as paid
+                    await apiFetch(`/orders/${orderId}/confirm-payment`, {
+                        method: 'POST',
+                        body: JSON.stringify({ paymentId: orderId }),
+                    });
+                    card.innerHTML = SUCCESS_HTML(orderId);
+                } catch (err) {
+                    console.error('Payment confirmation error:', err);
+                    // Payment went through on PayHere side but we couldn't confirm locally
+                    card.innerHTML = FAILED_HTML(orderId, err.message);
+                }
+
+            } else if (params.get('cancelled') === 'true') {
+                card.innerHTML = CANCELLED_HTML;
+            } else {
+                // Fallback – generic landing (e.g. navigated directly)
+                card.innerHTML = SUCCESS_HTML(null);
+            }
         }
+
+        confirmAndShow();
     </script>
 </body>
 
