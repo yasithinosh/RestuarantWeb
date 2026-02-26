@@ -383,10 +383,25 @@
     .nav-links a {
         width: 100%;
         padding: 12px 16px;
-        border-radius: var(--radius-sm));
+        border-radius: var(--radius-sm);
     }
 
     .nav-hamburger {
         display: flex;
+    }
+
+    /* Shrink nav action buttons on mobile */
+    .nav-actions {
+        gap: 6px;
+    }
+
+    .nav-actions .btn-sm {
+        padding: 6px 12px;
+        font-size: 0.8rem;
+    }
+
+    /* Hide logout/username text on small screens, show icon only */
+    #nav-username {
+        display: none;
     }
 }

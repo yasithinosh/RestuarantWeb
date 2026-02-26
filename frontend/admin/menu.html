@@ -37,9 +37,17 @@
             </div>
         </aside>
 
+        <!-- Mobile sidebar overlay -->
+        <div class="admin-sidebar-overlay" id="sidebar-overlay" onclick="toggleAdminSidebar()"></div>
+
         <main class="admin-main">
             <div class="admin-topbar">
-                <h2 class="admin-page-title">Menu Management</h2>
+                <div class="admin-topbar-left">
+                    <button class="admin-mobile-menu-btn" style="display:none" onclick="toggleAdminSidebar()">
+                        <i class="fa-solid fa-bars"></i>
+                    </button>
+                    <h2 class="admin-page-title">Menu Management</h2>
+                </div>
                 <div class="admin-topbar-actions">
                     <button class="btn btn-primary btn-sm" onclick="openAddModal()">
                         <i class="fa-solid fa-plus"></i> Add Item
@@ -261,6 +269,11 @@
             }
         }
         loadMenu();
+
+        function toggleAdminSidebar() {
+            document.querySelector('.admin-sidebar').classList.toggle('open');
+            document.getElementById('sidebar-overlay').classList.toggle('open');
+        }
     </script>
 </body>
 

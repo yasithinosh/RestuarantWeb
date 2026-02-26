@@ -1,6 +1,15 @@
 version: '3.8'
 
+# ═══════════════════════════════════════════════════════════
+#  La Bella Cucina — Full Stack Docker Compose
+#  Run everything:  docker-compose up --build
+#  Stop:            docker-compose down
+#  Seed admin:      docker-compose exec backend node scripts/seed-admin.js
+# ═══════════════════════════════════════════════════════════
+
 services:
+
+  # ── 1. PostgreSQL Database ────────────────────────────────
   postgres:
     image: postgres:16-alpine
     container_name: labella_postgres
@@ -10,10 +19,16 @@ services:
       POSTGRES_USER: labella
       POSTGRES_PASSWORD: labella_secret
     ports:
-      - "5432:5432"
+      - "5432:5432" # expose so you can connect from host with pgAdmin app
     volumes:
       - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U labella -d labellacucina" ]
+      interval: 5s
+      timeout: 5s
+      retries: 10
 
+  # ── 2. pgAdmin (Database GUI) ─────────────────────────────
   pgadmin:
     image: dpage/pgadmin4
     container_name: labella_pgadmin
@@ -22,9 +37,61 @@ services:
       PGADMIN_DEFAULT_EMAIL: admin@labellacucina.co.za
       PGADMIN_DEFAULT_PASSWORD: admin123
     ports:
-      - "5050:80"
+      - "5050:80" # open http://localhost:5050
     depends_on:
       - postgres
 
+  # ── 3. Node.js Backend API ────────────────────────────────
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: labella_backend
+    restart: unless-stopped
+    environment:
+      PORT: 5000
+      NODE_ENV: production
+
+      # Database (points to the postgres service by name)
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_NAME: labellacucina
+      DB_USER: labella
+      DB_PASS: labella_secret
+
+      # JWT
+      JWT_SECRET: la_bella_cucina_super_secret_jwt_key_2026
+
+      # PayHere sandbox (replace with real values)
+      PAYHERE_MERCHANT_ID: 1234192
+      PAYHERE_SECRET: MjQ0MDMwMjI4MTE3MTU5OTIzMTE2NzU5MDE2ODIwOTMwOTc0NjY=
+      PAYHERE_SANDBOX: true
+
+
+      # CORS — frontend is served by nginx on port 80
+      CLIENT_URL: http://localhost
+
+    ports:
+      - "5000:5000" # API available at http://localhost:5000
+    depends_on:
+      postgres:
+        condition: service_healthy # wait for postgres to be ready
+    volumes:
+      - ./backend:/app
+      - /app/node_modules # keep container's node_modules
+
+  # ── 4. nginx Frontend ─────────────────────────────────────
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: labella_frontend
+    restart: unless-stopped
+    ports:
+      - "80:80" # open http://localhost
+    depends_on:
+      - backend
+
+# ── Volumes ────────────────────────────────────────────────
 volumes:
   postgres_data:

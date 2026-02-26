@@ -3,7 +3,11 @@
    All requests go through BASE_URL to backend
 ───────────────────────────────────────── */
 
-const API_BASE = 'http://localhost:5000/api';
+// In Docker: nginx proxies /api → backend:5000, so use relative path
+// In local dev (file:// or Live Server):  use localhost:5000 directly
+const API_BASE = (window.location.protocol === 'file:' || window.location.hostname === 'localhost' && window.location.port !== '80')
+    ? 'http://localhost:5000/api'
+    : '/api';
 
 async function apiFetch(path, options = {}) {
     const token = localStorage.getItem('lb_token');

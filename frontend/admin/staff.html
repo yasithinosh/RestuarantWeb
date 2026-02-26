@@ -37,9 +37,17 @@
             </div>
         </aside>
 
+        <!-- Mobile sidebar overlay -->
+        <div class="admin-sidebar-overlay" id="sidebar-overlay" onclick="toggleAdminSidebar()"></div>
+
         <main class="admin-main">
             <div class="admin-topbar">
-                <h2 class="admin-page-title">Staff & Users</h2>
+                <div class="admin-topbar-left">
+                    <button class="admin-mobile-menu-btn" style="display:none" onclick="toggleAdminSidebar()">
+                        <i class="fa-solid fa-bars"></i>
+                    </button>
+                    <h2 class="admin-page-title">Staff & Users</h2>
+                </div>
             </div>
             <div class="admin-content">
                 <div class="admin-table-card">
@@ -151,6 +159,11 @@
             }
         }
         loadUsers();
+
+        function toggleAdminSidebar() {
+            document.querySelector('.admin-sidebar').classList.toggle('open');
+            document.getElementById('sidebar-overlay').classList.toggle('open');
+        }
     </script>
 </body>
 

@@ -269,8 +269,9 @@
     background: #fff;
     border-radius: var(--radius-md);
     border: 1px solid #E4E7EB;
-    overflow: hidden;
+    overflow: visible;
     box-shadow: 0 1px 6px rgba(0, 0, 0, 0.04);
+    /* overflow must be visible so button hover transforms aren't clipped */
 }
 
 .admin-table-header {
@@ -336,6 +337,7 @@
     border-bottom: 1px solid #F3F4F6;
     color: var(--clr-dark-3);
     vertical-align: middle;
+    overflow: visible;
 }
 
 .data-table tr:last-child td {
@@ -354,6 +356,7 @@
 .action-btns {
     display: flex;
     gap: 6px;
+    align-items: center;
 }
 
 .action-btn {
@@ -368,6 +371,8 @@
     display: inline-flex;
     align-items: center;
     gap: 4px;
+    white-space: nowrap;
+    will-change: transform;
 }
 
 .action-btn.view {
@@ -396,8 +401,9 @@
 }
 
 .action-btn:hover {
-    filter: brightness(0.92);
-    transform: scale(1.03);
+    filter: brightness(0.88);
+    transform: translateY(-2px);
+    box-shadow: 0 3px 8px rgba(0, 0, 0, 0.12);
 }
 
 /* ── Modal ───────────────────────────────── */
@@ -539,15 +545,121 @@
 }
 
 @media (max-width: 900px) {
+
+    /* Grid becomes single column, sidebar handled as drawer */
     .admin-layout {
         grid-template-columns: 1fr;
     }
 
+    /* Sidebar becomes a slide-in drawer on mobile */
     .admin-sidebar {
+        transform: translateX(-100%);
+        transition: transform 0.3s ease;
+        z-index: 200;
+        display: flex;
+        /* keep visible but off-screen */
+    }
+
+    .admin-sidebar.open {
+        transform: translateX(0);
+    }
+
+    /* Overlay that dims the background when sidebar is open */
+    .admin-sidebar-overlay {
         display: none;
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.5);
+        z-index: 199;
+    }
+
+    .admin-sidebar-overlay.open {
+        display: block;
     }
 
     .admin-main {
         margin-left: 0;
+    }
+
+    /* Show mobile hamburger in topbar */
+    .admin-topbar {
+        padding: 0 var(--space-md);
+    }
+
+    .admin-mobile-menu-btn {
+        display: flex !important;
+        align-items: center;
+        justify-content: center;
+        width: 40px;
+        height: 40px;
+        background: #F4F5F7;
+        border: none;
+        border-radius: var(--radius-sm);
+        cursor: pointer;
+        font-size: 1.1rem;
+        color: var(--clr-dark-3);
+        margin-right: var(--space-sm);
+        flex-shrink: 0;
+    }
+
+    .admin-topbar-left {
+        display: flex;
+        align-items: center;
+    }
+
+    /* Stats: 2 columns on tablet */
+    .admin-stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    /* Tables scroll horizontally */
+    .admin-table-card {
+        overflow-x: auto;
+    }
+
+    .data-table {
+        min-width: 600px;
+    }
+
+    /* Admin content padding */
+    .admin-content {
+        padding: var(--space-md);
+    }
+}
+
+@media (max-width: 480px) {
+
+    /* Stats single column on phone */
+    .admin-stats-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .admin-page-title {
+        font-size: 1.1rem;
+    }
+
+    .admin-topbar {
+        height: 56px;
+    }
+
+    /* Table filters stack vertically */
+    .admin-table-filters {
+        flex-direction: column;
+        width: 100%;
+    }
+
+    .filter-select {
+        width: 100%;
+    }
+
+    /* Quick action buttons stack */
+    .admin-content>div[style*="display:flex"] {
+        flex-direction: column;
+    }
+
+    /* Action buttons in table remain compact */
+    .action-btn {
+        padding: 4px 8px;
+        font-size: 0.72rem;
     }
 }

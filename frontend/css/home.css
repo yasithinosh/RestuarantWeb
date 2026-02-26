@@ -428,5 +428,53 @@
 
     .hero-content {
         padding-top: 90px;
+        max-width: 100%;
+        padding-left: var(--space-md);
+        padding-right: var(--space-md);
+    }
+
+    .hero h1 {
+        font-size: clamp(2rem, 8vw, 3rem);
+    }
+
+    .hero p {
+        font-size: 1rem;
+    }
+
+    .hero-actions {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: var(--space-sm);
+    }
+
+    .hero-actions .btn {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .reservation-cta h2 {
+        font-size: clamp(1.3rem, 5vw, 2rem);
+    }
+
+    .menu-preview-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 480px) {
+    .stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .stat-number {
+        font-size: 1.7rem;
+    }
+
+    .menu-preview-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .hero-content {
+        padding-top: 80px;
     }
 }

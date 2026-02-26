@@ -48,10 +48,18 @@
             </div>
         </aside>
 
+        <!-- Mobile sidebar overlay -->
+        <div class="admin-sidebar-overlay" id="sidebar-overlay" onclick="toggleAdminSidebar()"></div>
+
         <!-- ── Main ── -->
         <main class="admin-main">
             <div class="admin-topbar">
-                <h2 class="admin-page-title">Dashboard</h2>
+                <div class="admin-topbar-left">
+                    <button class="admin-mobile-menu-btn" style="display:none" onclick="toggleAdminSidebar()">
+                        <i class="fa-solid fa-bars"></i>
+                    </button>
+                    <h2 class="admin-page-title">Dashboard</h2>
+                </div>
                 <div class="admin-topbar-actions">
                     <span style="font-size:0.85rem;color:var(--clr-muted)" id="live-time"></span>
                 </div>
@@ -104,7 +112,8 @@
                 </div>
 
                 <!-- Quick actions -->
-                <div style="display:flex;gap:var(--space-md);margin-bottom:var(--space-xl);flex-wrap:wrap">
+                <div
+                    style="display:flex;align-items:center;gap:var(--space-md);margin-bottom:var(--space-xl);flex-wrap:wrap">
                     <a href="reservations.html" class="btn btn-primary"><i class="fa-solid fa-calendar-check"></i>
                         Manage Reservations</a>
                     <a href="menu.html" class="btn btn-outline"><i class="fa-solid fa-plus"></i> Add Menu Item</a>
@@ -258,6 +267,12 @@
         }
 
         loadDashboard();
+
+        // Mobile sidebar toggle
+        function toggleAdminSidebar() {
+            document.querySelector('.admin-sidebar').classList.toggle('open');
+            document.getElementById('sidebar-overlay').classList.toggle('open');
+        }
     </script>
 </body>
 
