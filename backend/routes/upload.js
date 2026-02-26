@@ -9,17 +9,16 @@ const { protect, staffOrAdmin } = require('../middleware/auth');
 const UPLOAD_DIR = path.join(__dirname, '..', 'uploads');
 if (!fs.existsSync(UPLOAD_DIR)) fs.mkdirSync(UPLOAD_DIR, { recursive: true });
 
-// Multer disk storage – keeps original extension, adds timestamp to avoid collisions
+// Store files with a unique timestamped filename
 const storage = multer.diskStorage({
     destination: (req, file, cb) => cb(null, UPLOAD_DIR),
     filename: (req, file, cb) => {
         const ext = path.extname(file.originalname).toLowerCase();
-        const name = `${Date.now()}-${Math.round(Math.random() * 1e6)}${ext}`;
-        cb(null, name);
+        cb(null, `${Date.now()}-${Math.round(Math.random() * 1e6)}${ext}`);
     },
 });
 
-// Accept only image files, max 5 MB
+// Accept images only, max 5 MB
 const upload = multer({
     storage,
     limits: { fileSize: 5 * 1024 * 1024 },
@@ -27,21 +26,14 @@ const upload = multer({
         const allowed = /jpeg|jpg|png|webp|gif/;
         const ok = allowed.test(path.extname(file.originalname).toLowerCase())
             && allowed.test(file.mimetype);
-        ok ? cb(null, true) : cb(new Error('Only image files are allowed (jpg, png, webp, gif)'));
+        ok ? cb(null, true) : cb(new Error('Only image files are allowed'));
     },
 });
 
-/**
- * POST /api/upload
- * Upload a single image and get back its public URL.
- * Protected – only logged-in staff/admin can upload.
- */
+// POST /api/upload – upload a single image, returns its public URL
 router.post('/', protect, staffOrAdmin, upload.single('image'), (req, res) => {
     if (!req.file) return res.status(400).json({ error: 'No file uploaded' });
-
-    // Build the public URL: served by the backend at /uploads/<filename>
-    const imageUrl = `/uploads/${req.file.filename}`;
-    res.json({ url: imageUrl, filename: req.file.filename });
+    res.json({ url: `/uploads/${req.file.filename}`, filename: req.file.filename });
 });
 
 module.exports = router;

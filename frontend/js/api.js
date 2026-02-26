@@ -1,11 +1,7 @@
-/* ─────────────────────────────────────────
-   api.js – Centralized fetch helpers
-   All requests go through BASE_URL to backend
-───────────────────────────────────────── */
+/* api.js – Centralised API fetch helpers */
 
-// In Docker: nginx proxies /api → backend:5000, so use relative path
-// In local dev (file:// or Live Server):  use localhost:5000 directly
-const API_BASE = (window.location.protocol === 'file:' || window.location.hostname === 'localhost' && window.location.port !== '80')
+// In Docker, nginx proxies /api to backend. In local dev, hit localhost:5000 directly.
+const API_BASE = (window.location.protocol === 'file:' || (window.location.hostname === 'localhost' && window.location.port !== '80'))
     ? 'http://localhost:5000/api'
     : '/api';
 
@@ -17,9 +13,7 @@ async function apiFetch(path, options = {}) {
     const res = await fetch(`${API_BASE}${path}`, { ...options, headers });
     const data = await res.json().catch(() => ({}));
 
-    if (!res.ok) {
-        throw new Error(data.error || `HTTP ${res.status}`);
-    }
+    if (!res.ok) throw new Error(data.error || `HTTP ${res.status}`);
     return data;
 }
 
@@ -56,7 +50,7 @@ const api = {
     createCheckout: (body) => apiFetch('/payment/create-session', { method: 'POST', body: JSON.stringify(body) }),
 };
 
-// Toast notification helper
+// Show a toast notification
 function showToast(message, type = 'success') {
     const existing = document.querySelector('.toast');
     if (existing) existing.remove();
@@ -68,12 +62,12 @@ function showToast(message, type = 'success') {
     setTimeout(() => toast.remove(), 3500);
 }
 
-// Date formatter
+// Format a date string as DD Mon YYYY
 function formatDate(iso) {
     return new Date(iso).toLocaleDateString('en-ZA', { day: '2-digit', month: 'short', year: 'numeric' });
 }
 
-// Currency formatter
+// Format a number as currency (Rs. x.xx)
 function formatZAR(amount) {
     return `Rs. ${Number(amount).toFixed(2)}`;
 }

@@ -1,6 +1,4 @@
-/* ─────────────────────────────────────────
-   db.js – Sequelize (PostgreSQL) instance
-───────────────────────────────────────── */
+// db.js – Sequelize PostgreSQL connection
 const { Sequelize } = require('sequelize');
 
 const sequelize = new Sequelize(

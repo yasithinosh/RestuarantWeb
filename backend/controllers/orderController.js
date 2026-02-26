@@ -1,7 +1,7 @@
 const { Op } = require('sequelize');
 const Order = require('../models/Order');
 
-// GET /api/orders  (admin/staff)
+// GET /api/orders (admin/staff)
 exports.getAll = async (req, res) => {
     try {
         const where = {};
@@ -14,10 +14,9 @@ exports.getAll = async (req, res) => {
     }
 };
 
-// GET /api/orders/mine  (customer – by email stored in JWT)
+// GET /api/orders/mine (authenticated customer)
 exports.getMine = async (req, res) => {
     try {
-        // Orders store customer as JSONB; filter in JS (or use Postgres JSON operators)
         const all = await Order.findAll({ order: [['createdAt', 'DESC']] });
         const mine = all.filter(o => o.customer && o.customer.email === req.user.email);
         res.json(mine);
@@ -52,7 +51,7 @@ exports.getOne = async (req, res) => {
     }
 };
 
-// POST /api/orders  (public)
+// POST /api/orders (public)
 exports.create = async (req, res) => {
     try {
         const order = await Order.create(req.body);
@@ -86,27 +85,21 @@ exports.remove = async (req, res) => {
     }
 };
 
-/**
- * POST /api/orders/:id/confirm-payment  (PUBLIC – no auth)
- * Called by the frontend after PayHere redirects back to return_url.
- * Marks the order as paid and confirmed.
- * NOTE: In production, payment confirmation should rely on the server-to-server
- *       webhook (/api/payment/notify). This endpoint is the fallback for
- *       local/dev where localhost is unreachable by PayHere's servers.
- */
+// POST /api/orders/:id/confirm-payment (public)
+// Called by the frontend after PayHere redirects back. Marks the order as paid.
+// In production, rely on the PayHere server webhook (/api/payment/notify) instead.
 exports.confirmPayment = async (req, res) => {
     try {
         const order = await Order.findByPk(req.params.id);
         if (!order) return res.status(404).json({ error: 'Order not found' });
 
-        // Only update if not already paid (idempotent)
         if (!order.paid) {
             await order.update({
                 paid: true,
                 status: 'confirmed',
                 paymentId: req.body.paymentId || req.params.id,
             });
-            console.log(`✅ Payment confirmed (client-side) for order ${req.params.id}`);
+            console.log('Payment confirmed for order', req.params.id);
         }
 
         res.json({ success: true, order });
