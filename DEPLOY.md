@@ -34,12 +34,18 @@ sudo usermod -aG docker $USER
    git clone <YOUR_GIT_REPO_URL>
    cd Restuarant
    ```
-2. Create your production `.env` file:
+2. **Setup Production Secrets:**
+   Create your production `.env` file from the template:
    ```bash
    cp backend/.env.prod.example backend/.env.prod
-   nano backend/.env.prod
-   # Change all passwords and secrets!
    ```
+   **CRITICAL: Generate secrets before starting!**
+   Open the file for editing: `nano backend/.env.prod`
+
+   - **For `DB_PASS` and `JWT_SECRET`**: use strong random strings (run `openssl rand -base64 32` in another terminal to get one).
+   - Change `ADMIN_PASSWORD` to something unique for your dashboard.
+   - **Save and Exit:** Press `Ctrl + O`, then `Enter`, then `Ctrl + X`.
+
 3. Start the application:
    ```bash
    docker-compose -f docker-compose.prod.yml up -d
