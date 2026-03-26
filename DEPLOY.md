@@ -96,8 +96,33 @@ docker exec -it labella_backend_prod node scripts/seed-admin.js
   ```bash
   docker exec labella_postgres_prod pg_dump -U labella -d labellacucina > backup.sql
   ```
-- **Update Application**:
-  ```bash
-  git pull
-  docker-compose -f docker-compose.prod.yml up -d --build
-  ```
+## 🔄 Updating Your Application
+
+When you make changes to your code (e.g., editing `index.html` or `server.js`) and push them to your GitHub repository, your AWS server **will not** update automatically. 
+
+Follow these steps to sync your live website with your latest code:
+
+### 1. Connect to your AWS instance
+Use Putty to log in to your server.
+
+### 2. Pull the latest code from GitHub
+```bash
+cd ~/RestuarantWeb
+git pull origin main
+```
+
+### 3. Rebuild and restart the containers
+This is the most important step. It tells Docker to rebuild your images with the new code:
+```bash
+docker-compose -f docker-compose.prod.yml up -d --build
+```
+
+> [!TIP]
+> The `--build` flag ensures that any changes to your code are "re-baked" into the Docker images. If you only changed environment variables, you don't need `--build`.
+
+---
+
+## 📈 Monitoring Dashboard
+Your Grafana monitoring is available at: `https://labella.inovoid.me/grafana/`
+- **Username**: `admin`
+- **Password**: (The value of `GRAFANA_PASSWORD` in your `.env` file)

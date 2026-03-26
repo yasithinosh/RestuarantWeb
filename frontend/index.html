@@ -18,8 +18,7 @@
     <!-- ── Navbar ── -->
     <nav class="navbar" id="navbar">
         <a href="index.html" class="nav-logo">
-            <div class="nav-logo-icon">🍝</div>
-            <div class="nav-logo-text">La Bella Cucina<small>Ristorante Italiano</small></div>
+            <img src="assets/logo.png" alt="La Bella" style="height: 48px; width: auto; object-fit: contain;">
         </a>
         <div class="nav-links" id="nav-links">
             <a href="index.html" class="active">Home</a>
@@ -123,22 +122,22 @@
             <div class="section-divider" style="margin:0 auto var(--space-xl)"></div>
             <div class="features-grid">
                 <div class="feature-card animate-fadeInUp animate-delay-1">
-                    <div class="feature-icon">🍕</div>
+                    <div class="feature-icon"></div>
                     <h3>Wood-Fired Pizza</h3>
                     <p>Cooked in our authentic Neapolitan oven at 485°C for the perfect char and chew.</p>
                 </div>
                 <div class="feature-card animate-fadeInUp animate-delay-2">
-                    <div class="feature-icon">🍷</div>
+                    <div class="feature-icon"></div>
                     <h3>Fine Wine Selection</h3>
                     <p>Over 80 carefully curated labels from Tuscany, Piedmont, and Sicily.</p>
                 </div>
                 <div class="feature-card animate-fadeInUp animate-delay-3">
-                    <div class="feature-icon">👨‍🍳</div>
+                    <div class="feature-icon"></div>
                     <h3>Italy-Trained Chefs</h3>
                     <p>Our chefs trained in Naples, Florence, and Rome — 60+ combined years of experience.</p>
                 </div>
                 <div class="feature-card animate-fadeInUp animate-delay-4">
-                    <div class="feature-icon">🌿</div>
+                    <div class="feature-icon"></div>
                     <h3>Farm Fresh Ingredients</h3>
                     <p>Seasonal produce delivered daily from trusted local farms and certified Italian importers.</p>
                 </div>
@@ -225,7 +224,7 @@
                         <div class="info-row" style="display:flex;gap:12px;align-items:start">
                             <i class="fa-solid fa-envelope"
                                 style="color:var(--clr-primary);width:20px;margin-top:3px"></i>
-                            <div>hello@labellacucina.co.za</div>
+                            <div>inovoid.dev@gmail.com</div>
                         </div>
                     </div>
                     <a href="contact.html" class="btn btn-primary" style="margin-top:var(--space-lg)">
@@ -318,7 +317,7 @@
                 return `
       <div class="menu-preview-card" onclick="window.location='menu.html'">
         <div class="menu-preview-img">
-          <span style="${imgSrc ? 'display:none' : ''}">${item.emoji || '🍽️'}</span>
+          <span style="${imgSrc ? 'display:none' : ''}">${item.emoji || ''}</span>
           ${imgSrc ? `<img src="${imgSrc}" alt="${item.name}" loading="lazy">` : ''}
         </div>
         <div class="menu-preview-info">

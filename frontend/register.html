@@ -14,7 +14,7 @@
     <div class="auth-page">
         <div class="auth-visual">
             <div class="auth-visual-content">
-                <div class="auth-visual-logo">🍷</div>
+                <div class="auth-visual-logo"><img src="assets/logo.png" alt="La Bella" style="width: 100px; height: auto;"></div>
                 <h1>Join La Bella</h1>
                 <p>Create an account to enjoy a more personal dining experience.</p>
             </div>
@@ -37,16 +37,16 @@
                     <div class="form-row">
                         <div class="form-group">
                             <label class="form-label">Full Name</label>
-                            <input type="text" id="reg-name" class="form-input" placeholder="Maria Rossi" required>
+                            <input type="text" id="reg-name" class="form-input" placeholder="Your Name" required>
                         </div>
                         <div class="form-group">
                             <label class="form-label">Phone (optional)</label>
-                            <input type="tel" id="reg-phone" class="form-input" placeholder="+27 82 000 0000">
+                            <input type="tel" id="reg-phone" class="form-input" placeholder="+94 xx xxx 0000">
                         </div>
                     </div>
                     <div class="form-group">
                         <label class="form-label">Email Address</label>
-                        <input type="email" id="reg-email" class="form-input" placeholder="maria@example.com" required>
+                        <input type="email" id="reg-email" class="form-input" placeholder="yourmail@gmail.com" required>
                     </div>
                     <div class="form-group">
                         <label class="form-label">Password</label>
@@ -86,7 +86,7 @@
                     phone: document.getElementById('reg-phone').value,
                 });
                 auth.save(token, user);
-                showToast('Account created! Welcome 🎉');
+                showToast('Account created! Welcome.');
                 setTimeout(() => window.location.href = 'index.html', 1000);
             } catch (err) {
                 errEl.textContent = err.message;
