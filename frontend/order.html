@@ -369,10 +369,12 @@
                 cart.clear();
 
                 // 3. Build & auto-submit PayHere form
-                // Use the API base URL origin for the notify_url so PayHere can reach it
-                // (localhost cannot be reached by PayHere servers; use ngrok/public URL in production)
-                const API_BASE = (window.API_BASE || 'http://localhost:5000').replace('/api', '');
-                const CLIENT = window.location.origin;
+                const origin = window.location.origin;
+                // For notify_url, PayHere needs a public absolute URL.
+                // In production (port 80), use the public origin. In local dev, use localhost:5000.
+                const publicApiUrl = (origin.includes('localhost') && window.location.port !== '80')
+                    ? 'http://localhost:5000/api'
+                    : `${origin}/api`;
 
                 const form = document.createElement('form');
                 form.method = 'POST';
@@ -380,9 +382,9 @@
 
                 const fields = {
                     merchant_id: phData.merchantId,
-                    return_url: `${CLIENT}/frontend/checkout.html?success=true&order_id=${order.id}`,
-                    cancel_url: `${CLIENT}/frontend/checkout.html?cancelled=true&order_id=${order.id}`,
-                    notify_url: `${API_BASE}/api/payment/notify`,
+                    return_url: `${origin}/checkout.html?success=true&order_id=${order.id}`,
+                    cancel_url: `${origin}/checkout.html?cancelled=true&order_id=${order.id}`,
+                    notify_url: `${publicApiUrl}/payment/notify`,
                     order_id: order.id,
                     items: items.map(i => i.name).join(', '),
                     currency: phData.currency,

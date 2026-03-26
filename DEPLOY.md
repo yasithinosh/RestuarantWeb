@@ -41,25 +41,29 @@ cd Restuarant
 
 ## 4. Production Environment
 
-1. **Create .env.prod**:
+1. **Create .env**:
    ```bash
-   cp backend/.env.prod.example backend/.env.prod
-   nano backend/.env.prod
+   # Create a root .env file so Docker Compose loads it automatically
+   cp backend/.env.prod.example .env
+   nano .env
    ```
 2. **Fill in real secrets**: Replace all `REPLACE_WITH_...` placeholders.
 
 ## 5. SSL Certificate Initialization
 
-Before starting the full stack, we need to generate the SSL certificate:
+Before starting the full stack, we need to build and generate the certificates:
 
 ```bash
-# Temporarily start only the Nginx certbot-validation part
+# 1. Build the images first
+docker-compose -f docker-compose.prod.yml build
+
+# 2. Start Nginx for SSL validation
 docker-compose -f docker-compose.prod.yml up -d nginx
 
-# Run Certbot manually for the first time
+# 3. Run Certbot
 docker exec labella_certbot_prod certbot certonly --webroot --webroot-path=/var/www/certbot --email <your-email> --agree-tos --no-eff-email -d labella.inovoid.me
 
-# Restart Nginx to pick up the new certificates
+# 4. Restart Nginx
 docker-compose -f docker-compose.prod.yml restart nginx
 ```
 
