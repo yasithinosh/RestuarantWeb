@@ -5,6 +5,10 @@ services:
     container_name: labella_postgres
     restart: unless-stopped
     env_file: .env.prod
+    environment:
+      - POSTGRES_USER=$${DB_USER}
+      - POSTGRES_PASSWORD=$${DB_PASS}
+      - POSTGRES_DB=$${DB_NAME}
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
