@@ -316,7 +316,7 @@
           <div class="menu-item-desc">${item.description}</div>
           <div class="menu-item-footer">
             <span class="menu-item-price">${formatZAR(item.price)}</span>
-            <button class="add-to-cart-btn" id="btn-${item._id}" onclick="addItem(${JSON.stringify(item).replace(/"/g, '&quot;')}, this)">
+            <button class="add-to-cart-btn" id="btn-${item.id}" onclick="addItem(${JSON.stringify(item).replace(/"/g, '&quot;')}, this)">
               <i class="fa-solid fa-plus"></i> Add
             </button>
           </div>
@@ -354,7 +354,7 @@
                 // 1. Create order in our DB
                 const order = await api.createOrder({
                     customer: { name, email, phone },
-                    items: items.map(i => ({ id: i._id, name: i.name, price: i.price, quantity: i.quantity })),
+                    items: items.map(i => ({ id: i.id, name: i.name, price: i.price, quantity: i.quantity })),
                     total: cart.total() + SERVICE_FEE,
                     type: orderType,
                     notes: orderType === 'delivery' ? document.getElementById('delivery-address').value : '',

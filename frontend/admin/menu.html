@@ -207,7 +207,7 @@
         <td>${item.featured ? '⭐' : '—'}</td>
         <td><div class="action-btns">
           <button class="action-btn edit"   onclick='openEditModal(${JSON.stringify(item)})'>✏️ Edit</button>
-          <button class="action-btn delete" onclick="deleteItem('${item._id}','${item.name.replace(/'/g, '')}')">🗑 Delete</button>
+          <button class="action-btn delete" onclick="deleteItem('${item.id}','${item.name.replace(/'/g, '')}')">🗑 Delete</button>
         </div></td>
       </tr>`).join('');
         }

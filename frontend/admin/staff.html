@@ -114,7 +114,7 @@
         <td>${u.email}</td>
         <td>${u.phone || '—'}</td>
         <td>
-          <select class="filter-select" style="font-size:0.78rem;padding:4px 8px" onchange="updateRole('${u._id}', this.value)">
+          <select class="filter-select" style="font-size:0.78rem;padding:4px 8px" onchange="updateRole('${u.id}', this.value)">
             <option value="customer" ${u.role === 'customer' ? 'selected' : ''}>Customer</option>
             <option value="staff"    ${u.role === 'staff' ? 'selected' : ''}>Staff</option>
             <option value="admin"    ${u.role === 'admin' ? 'selected' : ''}>Admin</option>
@@ -123,7 +123,7 @@
         <td>${u.active ? '<span class="badge badge-success">Active</span>' : '<span class="badge badge-danger">Inactive</span>'}</td>
         <td>${formatDate(u.createdAt)}</td>
         <td><div class="action-btns">
-          <button class="action-btn ${u.active ? 'cancel' : 'confirm'}" onclick="toggleActive('${u._id}', ${!u.active})">
+          <button class="action-btn ${u.active ? 'cancel' : 'confirm'}" onclick="toggleActive('${u.id}', ${!u.active})">
             ${u.active ? '🚫 Deactivate' : '✓ Activate'}
           </button>
         </div></td>

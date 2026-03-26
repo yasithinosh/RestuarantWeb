@@ -18,7 +18,7 @@ const cart = {
 
     add(item) {
         const items = cart.get();
-        const existing = items.find(i => i._id === item._id);
+        const existing = items.find(i => i.id === item.id);
         if (existing) {
             existing.quantity = (existing.quantity || 1) + 1;
         } else {
@@ -31,16 +31,16 @@ const cart = {
     updateQty(id, qty) {
         let items = cart.get();
         if (qty <= 0) {
-            items = items.filter(i => i._id !== id);
+            items = items.filter(i => i.id !== id);
         } else {
-            const item = items.find(i => i._id === id);
+            const item = items.find(i => i.id === id);
             if (item) item.quantity = qty;
         }
         cart.save(items);
     },
 
     remove(id) {
-        const items = cart.get().filter(i => i._id !== id);
+        const items = cart.get().filter(i => i.id !== id);
         cart.save(items);
     },
 
@@ -75,17 +75,17 @@ const cart = {
         </div>`;
         } else {
             container.innerHTML = items.map(item => `
-        <div class="cart-item" data-id="${item._id}">
+        <div class="cart-item" data-id="${item.id}">
           <div class="cart-item-info">
             <div class="cart-item-name">${item.name}</div>
             <div class="cart-item-price">${formatZAR(item.price)}</div>
             <div class="cart-item-qty">
-              <button class="qty-btn" onclick="cart.updateQty('${item._id}', ${item.quantity - 1})">−</button>
+              <button class="qty-btn" onclick="cart.updateQty('${item.id}', ${item.quantity - 1})">−</button>
               <span>${item.quantity}</span>
-              <button class="qty-btn" onclick="cart.updateQty('${item._id}', ${item.quantity + 1})">+</button>
+              <button class="qty-btn" onclick="cart.updateQty('${item.id}', ${item.quantity + 1})">+</button>
             </div>
           </div>
-          <button class="cart-item-remove" onclick="cart.remove('${item._id}')">
+          <button class="cart-item-remove" onclick="cart.remove('${item.id}')">
             <i class="fa-solid fa-trash-can"></i>
           </button>
         </div>`).join('');

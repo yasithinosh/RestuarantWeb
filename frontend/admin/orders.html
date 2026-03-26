@@ -177,7 +177,7 @@
         <td>${o.paid ? '<span class="badge badge-success">✓ Paid</span>' : '<span class="badge badge-warning">Unpaid</span>'}</td>
         <td>${formatDate(o.createdAt)}</td>
         <td>
-          <select class="filter-select" style="font-size:0.78rem;padding:4px 8px" onchange="updateOrderStatus('${o._id}', this.value)">
+          <select class="filter-select" style="font-size:0.78rem;padding:4px 8px" onchange="updateOrderStatus('${o.id}', this.value)">
             ${STATUS_OPTS.map(s => `<option value="${s}" ${o.status === s ? 'selected' : ''}>${s.charAt(0).toUpperCase() + s.slice(1)}</option>`).join('')}
           </select>
         </td>

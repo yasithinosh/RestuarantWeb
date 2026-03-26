@@ -165,9 +165,9 @@
         <td style="max-width:150px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:0.82rem;color:var(--clr-muted)">${r.notes || '—'}</td>
         <td>${SB[r.status] || r.status}</td>
         <td><div class="action-btns">
-          ${r.status !== 'confirmed' ? `<button class="action-btn confirm" onclick="updateStatus('${r._id}','confirmed')">✓ Confirm</button>` : ''}
-          ${r.status !== 'cancelled' ? `<button class="action-btn cancel"  onclick="updateStatus('${r._id}','cancelled')">✗ Cancel</button>` : ''}
-          <button class="action-btn delete" onclick="deleteRes('${r._id}')">🗑</button>
+          ${r.status !== 'confirmed' ? `<button class="action-btn confirm" onclick="updateStatus('${r.id}','confirmed')">✓ Confirm</button>` : ''}
+          ${r.status !== 'cancelled' ? `<button class="action-btn cancel"  onclick="updateStatus('${r.id}','cancelled')">✗ Cancel</button>` : ''}
+          <button class="action-btn delete" onclick="deleteRes('${r.id}')">🗑</button>
         </div></td>
       </tr>`).join('');
         }

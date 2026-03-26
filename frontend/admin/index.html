@@ -241,8 +241,8 @@
           <td>${r.guests}</td>
           <td>${STATUS_BADGE[r.status] || r.status}</td>
           <td><div class="action-btns">
-            <button class="action-btn confirm" onclick="updateRes('${r._id}','confirmed')">✓ Confirm</button>
-            <button class="action-btn cancel"  onclick="updateRes('${r._id}','cancelled')">✗ Cancel</button>
+            <button class="action-btn confirm" onclick="updateRes('${r.id}','confirmed')">✓ Confirm</button>
+            <button class="action-btn cancel"  onclick="updateRes('${r.id}','cancelled')">✗ Cancel</button>
           </div></td>
         </tr>`).join('') || '<tr><td colspan="6" class="text-center" style="padding:var(--space-xl);color:var(--clr-muted)">No reservations yet</td></tr>';
             } catch { document.getElementById('recent-reservations').innerHTML = '<tr><td colspan="6" style="text-align:center;padding:16px;color:var(--clr-muted)">Backend offline</td></tr>'; }
