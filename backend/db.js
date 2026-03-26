@@ -2,9 +2,9 @@
 const { Sequelize } = require('sequelize');
 
 const sequelize = new Sequelize(
-    process.env.DB_NAME || 'labellacucina',
-    process.env.DB_USER || 'labella',
-    process.env.DB_PASS || 'labella_secret',
+    process.env.POSTGRES_DB || process.env.DB_NAME || 'labellacucina',
+    process.env.POSTGRES_USER || process.env.DB_USER || 'labella',
+    process.env.POSTGRES_PASSWORD || process.env.DB_PASS || 'labella_secret',
     {
         host: process.env.DB_HOST || 'localhost',
         port: process.env.DB_PORT || 5432,
