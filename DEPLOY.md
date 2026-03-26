@@ -1,283 +1,123 @@
-# Deployment Guide — labella.inovoid.me (AWS Free Tier)
+# Deployment Guide — labella.inovoid.me
 
-> Deploy La Bella Cucina to AWS EC2 (t2.micro, free tier) with HTTPS and GitHub Actions auto-deploy.
-> **Estimated monthly cost: $0** during the free tier period (12 months from AWS sign-up).
-
----
-
-## What runs on the server
-
-| Container | RAM usage | Purpose |
-|---|---|---|
-| `postgres` | ~150 MB | Database |
-| `backend` | ~120 MB | Node.js API |
-| `nginx` | ~15 MB | HTTPS, static files |
-| `certbot` | ~30 MB | SSL certificate |
-| **Total** | **~315 MB** | Well within 1 GB |
-
-> [!NOTE]
-> Monitoring (Grafana/Prometheus) is excluded from free tier deployment.
-> Use **AWS CloudWatch** (free, built-in) for basic EC2 CPU/RAM/disk metrics.
+This guide explains how to deploy the La Bella Cucina application to your AWS EC2 instance (`t3.micro`) with a full DevOps monitoring stack and SSL.
 
 ---
 
-## 1. Launch EC2 Instance (AWS Console)
+## 🏗️ 1. AWS Security Group Setup
 
-1. **EC2 → Launch Instance**
-2. **Name:** `labella-cucina`
-3. **AMI:** `Ubuntu Server 22.04 LTS` ← must be this for free tier
-4. **Instance type:** `t2.micro` ← free tier eligible
-5. **Key pair:** Create new → download `.pem` → keep it safe
-6. **Security Group — open exactly these ports:**
+Ensure your EC2 Security Group allows the following **Inbound Rules**:
 
-| Port | Protocol | Source | Purpose |
-|------|----------|--------|---------|
-| 22 | TCP | My IP | SSH (your IP only) |
-| 80 | TCP | 0.0.0.0/0, ::/0 | HTTP |
-| 443 | TCP | 0.0.0.0/0, ::/0 | HTTPS |
-
-7. **Storage:** 20 GB gp2 (free tier gives 30 GB)
-8. Click **Launch Instance**
-
-### Allocate an Elastic IP (static public IP)
-1. **EC2 → Elastic IPs → Allocate Elastic IP address → Allocate**
-2. Select the new address → **Actions → Associate Elastic IP**
-3. Choose your instance → **Associate**
-4. Note down your Elastic IP — e.g. `54.xxx.xxx.xxx`
+| Protocol | Port | Source | Description |
+|---|---|---|---|
+| SSH | 22 | My IP | Access via PuTTY |
+| HTTP | 80 | 0.0.0.0/0 | Web access & SSL validation |
+| HTTPS | 443 | 0.0.0.0/0 | Secure Web access |
 
 ---
 
-## 2. Point DNS to EC2 (Namecheap)
+## 🌐 2. DNS Configuration
 
-1. Log into **Namecheap → Domain List → inovoid.me → Manage**
-2. Click **Advanced DNS**
-3. Add a new **A Record**:
-
-| Type | Host | Value | TTL |
-|------|------|-------|-----|
-| A Record | `labella` | `54.xxx.xxx.xxx` | Automatic |
-
-4. Save. Wait 5–15 minutes for DNS to propagate.
-5. Test from your local machine:
-```bash
-ping labella.inovoid.me
-# Should resolve to your Elastic IP
-```
+1. Log in to your DNS provider (e.g., GoDaddy, Route 53).
+2. Create an **A Record**:
+   - **Name:** `labella`
+   - **Value:** `YOUR_ELASTIC_IP`
+   - **TTL:** 300 (or default)
 
 ---
 
-## 3. Connect to EC2
+## 🐚 3. Server Preparation (via PuTTY)
+
+Connect to your EC2 and run these commands to install Docker:
 
 ```bash
-# Make key read-only (required)
-chmod 400 your-key.pem
-
-# SSH in
-ssh -i your-key.pem ubuntu@labella.inovoid.me
-```
-
----
-
-## 4. Add Swap Space (important for t2.micro)
-
-t2.micro has only 1 GB RAM. A 2 GB swap file prevents out-of-memory crashes:
-
-```bash
-sudo fallocate -l 2G /swapfile
-sudo chmod 600 /swapfile
-sudo mkswap /swapfile
-sudo swapon /swapfile
-
-# Make swap permanent across reboots
-echo '/swapfile none swap sw 0 0' | sudo tee -a /etc/fstab
-
-# Verify
-free -h
-# Should show 2G under Swap
-```
-
----
-
-## 5. Install Docker
-
-```bash
-sudo apt update && sudo apt upgrade -y
-sudo apt install -y git curl
+# Update system
+sudo apt-get update && sudo apt-get upgrade -y
 
 # Install Docker
-curl -fsSL https://get.docker.com | sh
-sudo usermod -aG docker ubuntu
+curl -fsSL https://get.docker.com -o get-docker.sh
+sudo sh get-docker.sh
+sudo usermod -aG docker $USER
 newgrp docker
 
-# Install Docker Compose plugin
-sudo apt install -y docker-compose-plugin
-docker compose version
-# Should print: Docker Compose version v2.x.x
+# Install Docker Compose
+sudo curl -L "https://github.com/docker/compose/releases/latest/download/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+sudo chmod +x /usr/local/bin/docker-compose
 ```
 
 ---
 
-## 6. Clone the Repository
+## 🚀 4. Application Setup
 
+1. **Clone the repository:**
+   ```bash
+   git clone <YOUR_REPO_URL>
+   cd Restuarant
+   ```
+
+2. **Configure Environment Variables:**
+   ```bash
+   cp .env.prod.example .env.prod
+   nano .env.prod
+   ```
+   *Edit the values, especially passwords and secrets.*
+
+---
+
+## 🔒 5. SSL Certificate (First Run)
+
+To get your SSL certificate from Let's Encrypt for the first time:
+
+1. **Start nginx in "Challenge Only" mode:**
+   ```bash
+   # Temporarily use a simple config to get certs
+   docker-compose -f docker-compose.prod.yml up -d frontend
+   ```
+
+2. **Run Certbot to request certificates:**
+   ```bash
+   docker-compose -f docker-compose.prod.yml run --rm certbot certonly --webroot --webroot-path=/var/www/certbot --email your-email@example.com --agree-tos --no-eff-email -d labella.inovoid.me
+   ```
+
+3. **Generate Diffie-Hellman parameters (for extra security):**
+   ```bash
+   mkdir -p certbot/conf
+   openssl dhparam -out certbot/conf/ssl-dhparams.pem 2048
+   ```
+
+4. **Restart with full production config:**
+   ```bash
+   docker-compose -f docker-compose.prod.yml down
+   docker-compose -f docker-compose.prod.yml up -d
+   ```
+
+---
+
+## 📊 6. Monitoring & DevOps
+
+### Grafana Dashboard
+1. Visit `https://labella.inovoid.me/grafana/`
+2. **User:** `admin` | **Password:** (Set in `.env.prod`)
+3. The **Prometheus** datasource is already pre-configured.
+4. **DevOps Engineering:** You can now create dashboards to monitor:
+   - **Host:** CPU, RAM, Disk usage (via Node Exporter)
+   - **Containers:** Memory limits, CPU usage per service (via cAdvisor)
+   - **App:** Backend health and uptime.
+
+### Database Management
+- Access pgAdmin at `http://YOUR_ELASTIC_IP:5050` (or proxy it via nginx for SSL).
+
+---
+
+## 🛠️ 7. Maintenance
+
+**To update the app:**
 ```bash
-git clone https://github.com/YOUR_USERNAME/YOUR_REPO.git /opt/labella
-cd /opt/labella
+git pull
+docker-compose -f docker-compose.prod.yml up --build -d
 ```
 
----
-
-## 7. Configure Environment Variables
-
+**To view logs:**
 ```bash
-cp backend/.env.production backend/.env
-nano backend/.env
+docker-compose -f docker-compose.prod.yml logs -f
 ```
-
-Edit every value marked `CHANGE_THIS`:
-
-```env
-PORT=5000
-NODE_ENV=production
-
-DB_HOST=postgres
-DB_PORT=5432
-DB_NAME=labellacucina
-DB_USER=labella
-DB_PASS=CHANGE_THIS_STRONG_PASSWORD
-
-# Generate with: openssl rand -hex 32
-JWT_SECRET=CHANGE_THIS_64_CHAR_RANDOM_STRING
-
-PAYHERE_MERCHANT_ID=your_merchant_id
-PAYHERE_SECRET=your_merchant_secret
-PAYHERE_SANDBOX=false
-
-CLIENT_URL=https://labella.inovoid.me
-
-ADMIN_EMAIL=admin@labella.inovoid.me
-ADMIN_PASSWORD=CHANGE_THIS_STRONG_PASSWORD
-```
-
----
-
-## 8. Issue SSL Certificate (Let's Encrypt — free)
-
-```bash
-# Step 1: Start nginx and backend (HTTP only first)
-docker compose -f docker-compose.prod.yml up -d nginx backend postgres
-
-# Step 2: Issue the SSL certificate
-docker compose -f docker-compose.prod.yml run --rm certbot certonly \
-  --webroot \
-  --webroot-path=/var/www/certbot \
-  --email your@email.com \
-  --agree-tos \
-  --no-eff-email \
-  -d labella.inovoid.me
-```
-
-You should see:
-```
-Successfully received certificate.
-Certificate is saved at: /etc/letsencrypt/live/labella.inovoid.me/fullchain.pem
-```
-
-```bash
-# Step 3: Start all services with HTTPS
-docker compose -f docker-compose.prod.yml up -d
-```
-
----
-
-## 9. Seed the Admin Account
-
-```bash
-docker compose -f docker-compose.prod.yml exec backend node scripts/seed-admin.js
-```
-
----
-
-## 10. Verify Deployment
-
-```bash
-# All 4 containers should show "Up"
-docker compose -f docker-compose.prod.yml ps
-
-# API health check
-curl https://labella.inovoid.me/api/health
-# Expected: {"status":"ok","time":"..."}
-```
-
-Open `https://labella.inovoid.me` in your browser — padlock should appear.
-
----
-
-## 11. Set Up AWS CloudWatch Monitoring (Free)
-
-CloudWatch is built into EC2 and monitors CPU, disk, and network for free.
-
-**Enable detailed monitoring:**
-1. **EC2 → Instances → Select your instance → Actions → Monitor and troubleshoot → Manage CloudWatch alarms**
-2. Create an alarm: **CPU usage > 80% for 5 minutes → Send email notification**
-
-**Enable billing alerts** (so you never get charged unexpectedly):
-1. **AWS Console → Billing → Budgets → Create budget**
-2. Set a $1 monthly budget → email alert at 80% of budget
-
----
-
-## 12. Set Up GitHub Actions CI/CD
-
-Every `git push` to `main` automatically deploys to EC2.
-
-**Add these secrets to your GitHub repo:**
-`Settings → Secrets and variables → Actions → New secret`
-
-| Secret | Value |
-|---|---|
-| `EC2_HOST` | `labella.inovoid.me` |
-| `EC2_USER` | `ubuntu` |
-| `EC2_SSH_KEY` | Full contents of your `.pem` file |
-
-The workflow file is already at `.github/workflows/deploy.yml` — push to `main` to trigger it.
-
----
-
-## 13. Useful Commands
-
-```bash
-# View real-time logs
-docker compose -f docker-compose.prod.yml logs -f backend
-
-# Restart a service
-docker compose -f docker-compose.prod.yml restart backend
-
-# Check RAM usage
-free -h
-
-# Check disk usage
-df -h
-
-# Force SSL certificate renewal
-docker compose -f docker-compose.prod.yml run --rm certbot renew
-docker compose -f docker-compose.prod.yml exec nginx nginx -s reload
-
-# Database backup
-docker compose -f docker-compose.prod.yml exec postgres \
-  pg_dump -U labella labellacucina > backup_$(date +%Y%m%d).sql
-```
-
----
-
-## Free Tier Limits to Watch
-
-| Resource | Free Tier Allowance | This App Uses |
-|---|---|---|
-| EC2 hours | 750 hrs/month (t2.micro) | ~744 hrs (always-on) |
-| EBS storage | 30 GB | ~20 GB |
-| Data transfer out | 100 GB/month | Depends on traffic |
-| Elastic IP | Free if associated | 1 IP |
-
-> [!WARNING]
-> The free tier lasts **12 months from your AWS account creation date**.
-> After that, t2.micro costs ~$8.50/month. Set a billing alarm to get notified.
