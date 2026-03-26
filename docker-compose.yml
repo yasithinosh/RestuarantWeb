@@ -6,9 +6,9 @@ services:
     container_name: labella_postgres
     restart: unless-stopped
     environment:
-      POSTGRES_DB: labellacucina
-      POSTGRES_USER: labella
-      POSTGRES_PASSWORD: labella_secret
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
     ports:
       - "5432:5432"
     volumes:
