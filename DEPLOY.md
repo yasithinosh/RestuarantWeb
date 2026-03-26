@@ -1,71 +1,99 @@
-# La Bella Cucina — Production Deployment Guide 🚀
+# AWS Deployment Guide 🚀
 
-Follow these steps to deploy your application to your AWS EC2 `labella-cucina` instance.
+This guide provides step-by-step instructions to deploy **La Bella Cucina** to an AWS EC2 instance with SSL and Monitoring.
 
-## 1. Domain & DNS Setup
-1. Log in to your domain registrar (where you bought `inovoid.me`).
-2. Add an **A Record**:
-   - **Host:** `labella`
-   - **Value:** `YOUR_ELASTIC_IP`
-   - **TTL:** 1 hour (or default)
+## 1. AWS Instance Setup (EC2)
 
-## 2. AWS Security Group Rules
-Ensure your EC2 instance's Security Group allows:
-- **SSH (22):** Your IP
-- **HTTP (80):** Anywhere (0.0.0.0/0)
-- **HTTPS (443):** Anywhere (0.0.0.0/0)
+1. **Launch Instance**: Use **Ubuntu 22.04 LTS**.
+2. **Elastic IP**: Allocate and associate an Elastic IP to your instance.
+3. **Security Groups**: Add the following Inbound Rules:
+   - **Port 22 (SSH)**: From your IP.
+   - **Port 80 (HTTP)**: From Anywhere.
+   - **Port 443 (HTTPS)**: From Anywhere.
+   - **Port 3000 (Grafana)**: From Anywhere (or just your IP for better security).
 
-## 3. Server Preparation (PuTTY)
-Connect to your instance via PuTTY and run these commands:
+## 2. DNS Configuration
+
+In your domain provider's dashboard (e.g., Cloudflare, GoDaddy):
+- Create an **A Record** for `labella.inovoid.me`.
+- Point it to your **Elastic IP**.
+
+## 3. Server Preparation (SSH)
+
+Connect via Putty/SSH and run:
 
 ```bash
 # Update system
 sudo apt update && sudo apt upgrade -y
 
 # Install Docker
-sudo apt install -y docker.io docker-compose
-sudo usermod -aG docker $USER
-# Log out and log back in for group changes to take effect
+curl -fsSL https://get.docker.com -o get-docker.sh
+sudo sh get-docker.sh
+sudo usermod -aG docker $USER && newgrp docker
+
+# Install Docker Compose
+sudo apt install docker-compose-v2 -y
+
+# Clone Repository
+git clone <your-repo-url>
+cd Restuarant
 ```
 
-## 4. Initial Deployment
-1. Clone your repository:
-   ```bash
-   git clone <YOUR_GIT_REPO_URL>
-   cd Restuarant
-   ```
-2. **Setup Production Secrets:**
-   Create your production `.env` file from the template:
+## 4. Production Environment
+
+1. **Create .env.prod**:
    ```bash
    cp backend/.env.prod.example backend/.env.prod
+   nano backend/.env.prod
    ```
-   **CRITICAL: Generate secrets before starting!**
-   Open the file for editing: `nano backend/.env.prod`
+2. **Fill in real secrets**: Replace all `REPLACE_WITH_...` placeholders.
 
-   - **For `DB_PASS` and `JWT_SECRET`**: use strong random strings (run `openssl rand -base64 32` in another terminal to get one).
-   - Change `ADMIN_PASSWORD` to something unique for your dashboard.
-   - **Save and Exit:** Press `Ctrl + O`, then `Enter`, then `Ctrl + X`.
+## 5. SSL Certificate Initialization
 
-3. Start the application:
-   ```bash
-   docker-compose -f docker-compose.prod.yml up -d
-   ```
-
-## 5. SSL Certificate (Let's Encrypt)
-Wait for the initial build to finish, then generate your SSL certificate:
+Before starting the full stack, we need to generate the SSL certificate:
 
 ```bash
-# Install Certbot (if not using the docker container)
-# The provided docker-compose.prod.yml uses a certbot container
-docker-compose -f docker-compose.prod.yml run --rm certbot certonly --webroot --webroot-path /var/www/certbot/ -d labella.inovoid.me
+# Temporarily start only the Nginx certbot-validation part
+docker-compose -f docker-compose.prod.yml up -d nginx
+
+# Run Certbot manually for the first time
+docker exec labella_certbot_prod certbot certonly --webroot --webroot-path=/var/www/certbot --email <your-email> --agree-tos --no-eff-email -d labella.inovoid.me
+
+# Restart Nginx to pick up the new certificates
+docker-compose -f docker-compose.prod.yml restart nginx
 ```
 
-## 6. DevOps Monitoring
-- **API Health:** `https://labella.inovoid.me/api/health`
-- **Grafana:** `https://labella.inovoid.me/grafana`
-  - Default login: `admin` / `admin` (Change this immediately!)
+## 6. Launch Application
 
-## 7. Useful Commands
-- **View Logs:** `docker-compose -f docker-compose.prod.yml logs -f`
-- **Restart All:** `docker-compose -f docker-compose.prod.yml restart`
-- **Rebuild After Code Changes:** `git pull && docker-compose -f docker-compose.prod.yml up --build -d`
+```bash
+docker-compose -f docker-compose.prod.yml up -d
+```
+
+## 7. Monitoring
+
+- **Grafana**: `https://labella.inovoid.me/grafana/`
+  - **Login**: `admin`
+  - **Password**: (The one you set in `.env.prod`)
+- **Prometheus**: Internal (accessible via Grafana).
+- **cAdvisor**: Internal (container metrics).
+
+## 8. Database Seeding (Admin)
+
+```bash
+docker exec -it labella_backend_prod node scripts/seed-admin.js
+```
+
+---
+
+## 🛠️ DevOps Maintenance
+
+- **View Logs**: `docker-compose -f docker-compose.prod.yml logs -f <service_name>`
+- **Backup Database**:
+  ```bash
+  docker exec labella_postgres_prod pg_dump -U labella -d labellacucina > backup.sql
+  ```
+- **Update Application**:
+  ```bash
+  git pull
+  docker-compose -f docker-compose.prod.yml up -d --build
+  ```

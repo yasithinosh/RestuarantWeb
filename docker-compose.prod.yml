@@ -1,118 +1,164 @@
 version: '3.8'
 
 services:
-  # PostgreSQL database
+  # ── Database (Postgres) ──
   postgres:
     image: postgres:16-alpine
-    container_name: labella_postgres
+    container_name: labella_postgres_prod
     restart: unless-stopped
-    env_file:
-      - ./backend/.env.prod
+    environment:
+      POSTGRES_DB: ${DB_NAME}
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASS}
     volumes:
       - postgres_data:/var/lib/postgresql/data
+    networks:
+      - labella_network
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U ${DB_USER} -d ${DB_NAME}"]
       interval: 10s
       timeout: 5s
       retries: 5
 
-  # Node.js backend
+  # ── Backend API ──
   backend:
     build:
       context: ./backend
       dockerfile: Dockerfile
-    container_name: labella_backend
+    container_name: labella_backend_prod
     restart: unless-stopped
-    env_file:
-      - ./backend/.env.prod
     environment:
       - NODE_ENV=production
+      - DB_HOST=postgres
+      - DB_PORT=5432
+      - DB_NAME=${DB_NAME}
+      - DB_USER=${DB_USER}
+      - DB_PASS=${DB_PASS}
+      - JWT_SECRET=${JWT_SECRET}
+      - PAYHERE_MERCHANT_ID=${PAYHERE_MERCHANT_ID}
+      - PAYHERE_SECRET=${PAYHERE_SECRET}
+      - PAYHERE_SANDBOX=${PAYHERE_SANDBOX}
+      - CLIENT_URL=https://labella.inovoid.me
     depends_on:
       postgres:
         condition: service_healthy
     volumes:
       - uploads_data:/app/uploads
+    networks:
+      - labella_network
 
-  # Nginx reverse proxy + SSL
+  # ── Frontend ──
   frontend:
     build:
       context: ./frontend
       dockerfile: Dockerfile
-    container_name: labella_frontend
+    container_name: labella_frontend_prod
+    restart: unless-stopped
+    depends_on:
+      - backend
+    networks:
+      - labella_network
+
+  # ── Nginx Gateway (SSL + Reverse Proxy) ──
+  nginx:
+    build:
+      context: ./nginx
+      dockerfile: Dockerfile
+    container_name: labella_nginx_prod
     restart: unless-stopped
     ports:
       - "80:80"
       - "443:443"
-    depends_on:
-      - backend
     volumes:
-      - ./frontend/nginx.prod.conf:/etc/nginx/conf.d/default.conf:ro
-      - certbot_etc:/etc/letsencrypt:ro
-      - certbot_var:/var/www/certbot:ro
+      - certs_data:/etc/letsencrypt
+      - certbot_www:/var/www/certbot
+    depends_on:
+      - frontend
+      - backend
+    networks:
+      - labella_network
 
-  # Certbot for SSL
+  # ── SSL Certificate Manager (Certbot) ──
   certbot:
     image: certbot/certbot
-    container_name: labella_certbot
+    container_name: labella_certbot_prod
     volumes:
-      - certbot_etc:/etc/letsencrypt
-      - certbot_var:/var/www/certbot
+      - certs_data:/etc/letsencrypt
+      - certbot_www:/var/www/certbot
     entrypoint: "/bin/sh -c 'trap exit TERM; while :; do certbot renew; sleep 12h & wait $${!}; done;'"
+    networks:
+      - labella_network
 
-  # Monitoring - Prometheus
+  # ── Monitoring (Prometheus) ──
   prometheus:
-    image: prom/prometheus
-    container_name: labella_prometheus
-    restart: unless-stopped
+    image: prom/prometheus:v2.45.0
+    container_name: labella_prometheus_prod
     volumes:
-      - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - ./monitoring/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
       - prometheus_data:/prometheus
     command:
       - '--config.file=/etc/prometheus/prometheus.yml'
       - '--storage.tsdb.path=/prometheus'
-
-  # Monitoring - Grafana
-  grafana:
-    image: grafana/grafana
-    container_name: labella_grafana
     restart: unless-stopped
+    networks:
+      - labella_network
+
+  # ── Monitoring (Grafana) ──
+  grafana:
+    image: grafana/grafana:10.0.0
+    container_name: labella_grafana_prod
     environment:
-      - GF_SERVER_ROOT_URL=https://labella.inovoid.me/grafana
+      - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_PASSWORD:-admin_secret}
+      - GF_SERVER_ROOT_URL=https://labella.inovoid.me/grafana/
       - GF_SERVER_SERVE_FROM_SUB_PATH=true
     volumes:
       - ./monitoring/grafana/provisioning:/etc/grafana/provisioning
       - grafana_data:/var/lib/grafana
-
-  # Monitoring - Node Exporter
-  node_exporter:
-    image: prom/node-exporter
-    container_name: labella_node_exporter
     restart: unless-stopped
+    depends_on:
+      - prometheus
+    networks:
+      - labella_network
+
+  # ── Host Metrics (Node Exporter) ──
+  node-exporter:
+    image: prom/node-exporter:v1.6.0
+    container_name: labella_node_exporter_prod
     volumes:
       - /proc:/host/proc:ro
       - /sys:/host/sys:ro
       - /:/rootfs:ro
     command:
       - '--path.procfs=/host/proc'
+      - '--path.rootfs=/rootfs'
       - '--path.sysfs=/host/sys'
-      - '--collector.filesystem.ignored-mount-points=^/(sys|proc|dev|host|etc)($$|/)'
-
-  # Monitoring - cAdvisor
-  cadvisor:
-    image: gcr.io/cadvisor/cadvisor:latest
-    container_name: labella_cadvisor
+      - '--collector.filesystem.mount-points-exclude=^/(sys|proc|dev|host|etc)($$|/)'
     restart: unless-stopped
+    networks:
+      - labella_network
+
+  # ── Container Metrics (cAdvisor) ──
+  cadvisor:
+    image: gcr.io/cadvisor/cadvisor:v0.47.1
+    container_name: labella_cadvisor_prod
     volumes:
       - /:/rootfs:ro
       - /var/run:/var/run:ro
       - /sys:/sys:ro
       - /var/lib/docker/:/var/lib/docker:ro
       - /dev/disk/:/dev/disk:ro
+    restart: unless-stopped
+    networks:
+      - labella_network
+
+networks:
+  labella_network:
+    driver: bridge
 
 volumes:
   postgres_data:
   uploads_data:
-  certbot_etc:
-  certbot_var:
   prometheus_data:
   grafana_data:
+  certs_data:
+  certbot_www:
