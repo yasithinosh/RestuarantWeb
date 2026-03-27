@@ -5,7 +5,7 @@
         "builtIn": 1,
         "datasource": {
           "type": "grafana",
-          "uid": "-- Graphics --"
+          "uid": "-- Grafana --"
         },
         "enable": true,
         "hide": true,
@@ -25,7 +25,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "P1809FD086D932159"
+        "uid": "Prometheus"
       },
       "fieldConfig": {
         "defaults": {
@@ -102,7 +102,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "P1809FD086D932159"
+            "uid": "Prometheus"
           },
           "editorMode": "code",
           "expr": "up",
@@ -118,7 +118,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "P1809FD086D932159"
+        "uid": "Prometheus"
       },
       "fieldConfig": {
         "defaults": {
@@ -167,7 +167,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "P1809FD086D932159"
+            "uid": "Prometheus"
           },
           "editorMode": "code",
           "expr": "100 - (node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes) * 100",
@@ -182,7 +182,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "P1809FD086D932159"
+        "uid": "Prometheus"
       },
       "fieldConfig": {
         "defaults": {
@@ -231,7 +231,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "P1809FD086D932159"
+            "uid": "Prometheus"
           },
           "editorMode": "code",
           "expr": "100 - (avg by (instance) (rate(node_cpu_seconds_total{mode=\"idle\"}[5m])) * 100)",
@@ -259,6 +259,6 @@
   "timezone": "",
   "title": "La Bella Cucina Service Overview",
   "uid": "lb_overview",
-  "version": 1,
+  "version": 2,
   "weekStart": ""
 }
