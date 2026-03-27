@@ -1,6 +1,8 @@
 # La Bella Cucina 🍝
 
-> **A Premuim Italian Dining Experience** – A full-stack restaurant management ecosystem featuring real-time ordering, intelligent reservations, and a robust administrative control center.
+> **A Premium Italian Dining Experience** – A full-stack restaurant management ecosystem featuring real-time ordering, intelligent reservations, and a robust administrative control center.
+
+### 🌐 [Live Demo: https://labella.inovoid.me](https://labella.inovoid.me)
 
 ---
 
